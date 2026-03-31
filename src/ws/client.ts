@@ -287,7 +287,7 @@ export class MorpheumWsClient {
           const isSnapshot = !this._snapshotSent.has(key);
           if (isSnapshot) this._snapshotSent.add(key);
           const event: StreamEvent = {
-            channel: msg.channel,
+            channel: sub.channelSpec.type,
             data: msg.data,
             isSnapshot,
           };
@@ -372,8 +372,15 @@ export class MorpheumWsClient {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function routingKeyFromWire(sub: { type: string; coin?: string }): string {
+function routingKeyFromWire(sub: {
+  type: string;
+  coin?: string;
+  tx_types?: string[];
+}): string {
   let key = sub.type;
   if (sub.coin) key += `:${sub.coin}`;
+  if (sub.tx_types && sub.tx_types.length > 0) {
+    key += `:${sub.tx_types.join(",")}`;
+  }
   return key;
 }

@@ -50,7 +50,7 @@ export interface AuthResult {
 export interface SubscriptionConfirm {
   kind: "subscriptionResponse";
   method?: string;
-  subscription?: { type: string; coin?: string };
+  subscription?: { type: string; coin?: string; tx_types?: string[] };
 }
 
 export interface ErrorResult {
@@ -85,7 +85,7 @@ export function decodeServerMessage(raw: string): ServerMessage {
         kind: "subscriptionResponse",
         method: d.method != null ? String(d.method) : undefined,
         subscription: d.subscription as
-          | { type: string; coin?: string }
+          | { type: string; coin?: string; tx_types?: string[] }
           | undefined,
       };
     }

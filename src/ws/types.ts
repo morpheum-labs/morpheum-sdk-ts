@@ -21,6 +21,7 @@ export interface ChannelSpecData {
   type: string;
   coin?: string;
   symbols?: string[];
+  tx_types?: string[];
   interval?: string;
   depth?: number;
   agent_id?: string;
@@ -37,23 +38,29 @@ export class ChannelSpec {
   readonly type: string;
   readonly coin?: string;
   readonly symbols?: string[];
+  readonly txTypes?: string[];
   readonly interval?: string;
   readonly depth?: number;
   readonly agentId?: string;
   readonly address?: string;
+  private readonly wireType?: string;
 
   private constructor(data: {
     type: string;
+    wireType?: string;
     coin?: string;
     symbols?: string[];
+    txTypes?: string[];
     interval?: string;
     depth?: number;
     agentId?: string;
     address?: string;
   }) {
     this.type = data.type;
+    this.wireType = data.wireType;
     this.coin = data.coin;
     this.symbols = data.symbols;
+    this.txTypes = data.txTypes;
     this.interval = data.interval;
     this.depth = data.depth;
     this.agentId = data.agentId;
@@ -62,8 +69,11 @@ export class ChannelSpec {
 
   /** Canonical key used internally to route incoming server frames. */
   get routingKey(): string {
-    let key = this.type;
+    let key = this.wireType ?? this.type;
     if (this.coin != null) key += `:${this.coin}`;
+    if (this.txTypes != null && this.txTypes.length > 0) {
+      key += `:${this.txTypes.join(",")}`;
+    }
     if (this.agentId != null) key += `:${this.agentId}`;
     if (this.address != null) key += `:${this.address}`;
     if (this.interval != null) key += `:${this.interval}`;
@@ -72,9 +82,10 @@ export class ChannelSpec {
 
   /** Serialize to the wire format expected by the server's SubscriptionSpec. */
   toWire(): ChannelSpecData {
-    const wire: ChannelSpecData = { type: this.type };
+    const wire: ChannelSpecData = { type: this.wireType ?? this.type };
     if (this.coin != null) wire.coin = this.coin;
     if (this.symbols != null) wire.symbols = this.symbols;
+    if (this.txTypes != null) wire.tx_types = this.txTypes;
     if (this.interval != null) wire.interval = this.interval;
     if (this.depth != null) wire.depth = this.depth;
     if (this.agentId != null) wire.agent_id = this.agentId;
@@ -313,6 +324,22 @@ export class ChannelSpec {
     return ChannelSpec.withCoin("consensus", coin);
   }
 
+  static transactions(txTypes: string[] = []): ChannelSpec {
+    return new ChannelSpec({
+      type: "transactions",
+      wireType: "consensus",
+      txTypes,
+    });
+  }
+
+  static txs(txTypes: string[] = []): ChannelSpec {
+    return new ChannelSpec({
+      type: "txs",
+      wireType: "consensus",
+      txTypes,
+    });
+  }
+
   static authChannel(coin: string): ChannelSpec {
     return ChannelSpec.withCoin("auth", coin);
   }
@@ -363,8 +390,10 @@ export class ChannelSpec {
   private toInternal() {
     return {
       type: this.type,
+      wireType: this.wireType,
       coin: this.coin,
       symbols: this.symbols,
+      txTypes: this.txTypes,
       interval: this.interval,
       depth: this.depth,
       agentId: this.agentId,
