@@ -55,6 +55,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function normalizeHexAddress(address: string): string {
+  return /^0x[0-9a-fA-F]+$/.test(address) ? address.toLowerCase() : address;
+}
+
 export interface MormcoreGrpcClientOptions {
   baseUrl: string;
   ensureTransport?: () => Promise<void>;
@@ -229,7 +233,7 @@ export class MormcoreGrpcClient {
   ): Promise<GetPositionResponse> {
     await this.ensureReady();
     return this.positionClient.getPosition({
-      address,
+      address: normalizeHexAddress(address),
       marketIndex: BigInt(marketIndex),
     });
   }
@@ -238,7 +242,9 @@ export class MormcoreGrpcClient {
     address: string,
   ): Promise<ListOpenPositionsResponse> {
     await this.ensureReady();
-    return this.positionClient.listOpenPositions({ address });
+    return this.positionClient.listOpenPositions({
+      address: normalizeHexAddress(address),
+    });
   }
 
   async queryLongShortVolume(
@@ -256,7 +262,7 @@ export class MormcoreGrpcClient {
   ): Promise<QueryPositionsByAddressResponse> {
     await this.ensureReady();
     return this.positionClient.queryPositionsByAddress({
-      address,
+      address: normalizeHexAddress(address),
       activeOnly,
     });
   }
@@ -654,6 +660,30 @@ export class MormcoreGrpcClient {
     }
     throw new Error(
       `Position state for address='${address}' market=${marketIndex} did not reach leverage=${expectedLeverage} after ${attempts} attempts (${timeoutMs}ms timeout). Last seen='${lastSeen}'`,
+    );
+  }
+
+  async pollUntilPositionStateAbsent(
+    address: string,
+    marketIndex: number,
+    timeoutMs: number = CONSENSUS_POLL_TIMEOUT_MS,
+  ): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    let attempts = 0;
+    let lastSeen = "<present>";
+    while (Date.now() < deadline) {
+      attempts++;
+      try {
+        const resp = await this.queryPosition(address, marketIndex);
+        if (!resp.found || !resp.position) return;
+        lastSeen = `leverage=${resp.position.leverage} size=${resp.position.size} bucket=${resp.position.bucketId}`;
+      } catch {
+        /* gRPC may fail briefly during consensus */
+      }
+      await sleep(POLL_INTERVAL_MS);
+    }
+    throw new Error(
+      `Position state for address='${address}' market=${marketIndex} did not disappear after ${attempts} attempts (${timeoutMs}ms timeout). Last seen='${lastSeen}'`,
     );
   }
 
