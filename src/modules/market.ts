@@ -1,10 +1,11 @@
 /**
- * Market module — typed transaction builders for CreateMarket and ActivateMarket.
+ * Market module — typed transaction builders for CreateMarket, ActivateMarket, and SuspendMarket.
  */
 import { create, toBinary } from "@bufbuild/protobuf";
 import {
   MsgActivateMarketRequestSchema,
   MsgCreateMarketRequestSchema,
+  MsgSuspendMarketRequestSchema,
 } from "@morpheum/proto/market/v1/tx_pb";
 import { buildSignDocBytes } from "@morpheum/signing-node";
 import { buildSignedTx } from "../tx-signed";
@@ -38,8 +39,15 @@ export interface MarketActivateParams {
   marketIndex: number;
 }
 
+export interface MarketSuspendParams {
+  suspender: string;
+  marketIndex: number;
+  reason: string;
+}
+
 const CREATE_MARKET_TYPE_URL = "/market.v1.MsgCreateMarketRequest";
 const ACTIVATE_MARKET_TYPE_URL = "/market.v1.MsgActivateMarketRequest";
+const SUSPEND_MARKET_TYPE_URL = "/market.v1.MsgSuspendMarketRequest";
 
 export function encodeMsgCreateMarket(params: MarketCreateParams): Uint8Array {
   const msg = create(MsgCreateMarketRequestSchema, {
@@ -72,6 +80,17 @@ export function encodeMsgActivateMarket(
     activator: params.activator,
   });
   return toBinary(MsgActivateMarketRequestSchema, msg);
+}
+
+export function encodeMsgSuspendMarket(
+  params: MarketSuspendParams,
+): Uint8Array {
+  const msg = create(MsgSuspendMarketRequestSchema, {
+    marketIndex: BigInt(params.marketIndex),
+    reason: params.reason,
+    suspender: params.suspender,
+  });
+  return toBinary(MsgSuspendMarketRequestSchema, msg);
 }
 
 function wasmSignDoc(
@@ -143,6 +162,27 @@ export function buildMarketActivateSignDoc(
   return { ...signDoc, msgBytes };
 }
 
+export function buildMarketSuspendSignDoc(
+  params: MarketSuspendParams,
+  signerAddress: string,
+  chainType: number,
+  signMode: number,
+  chainId: string,
+  memo: string = "",
+): SignDocResult & { msgBytes: Uint8Array } {
+  const msgBytes = encodeMsgSuspendMarket(params);
+  const signDoc = wasmSignDoc(
+    SUSPEND_MARKET_TYPE_URL,
+    msgBytes,
+    signerAddress,
+    chainType,
+    signMode,
+    chainId,
+    memo,
+  );
+  return { ...signDoc, msgBytes };
+}
+
 export function buildMarketCreateSignedTx(
   msgBytes: Uint8Array,
   signerAddress: string,
@@ -172,6 +212,25 @@ export function buildMarketActivateSignedTx(
 ): Tx {
   return buildSignedTx(
     ACTIVATE_MARKET_TYPE_URL,
+    msgBytes,
+    signerAddress,
+    signature,
+    chainType,
+    signMode,
+    memo,
+  );
+}
+
+export function buildMarketSuspendSignedTx(
+  msgBytes: Uint8Array,
+  signerAddress: string,
+  signature: Uint8Array,
+  chainType: number,
+  signMode: number,
+  memo: string = "",
+): Tx {
+  return buildSignedTx(
+    SUSPEND_MARKET_TYPE_URL,
     msgBytes,
     signerAddress,
     signature,

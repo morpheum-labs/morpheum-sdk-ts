@@ -32,12 +32,16 @@ export {
   type MarketActivateParams,
   type MarketCreateParams,
   type MarketParamsInput,
+  type MarketSuspendParams,
   encodeMsgActivateMarket,
   encodeMsgCreateMarket,
+  encodeMsgSuspendMarket,
   buildMarketActivateSignDoc,
   buildMarketActivateSignedTx,
   buildMarketCreateSignDoc,
   buildMarketCreateSignedTx,
+  buildMarketSuspendSignDoc,
+  buildMarketSuspendSignedTx,
 } from "./modules/market";
 
 export {
@@ -78,6 +82,28 @@ export {
   buildPositionUpdateLeverageSignDoc,
   buildPositionUpdateLeverageSignedTx,
 } from "./modules/position";
+
+export {
+  type FundingPositionInput,
+  type FundingApplyShardedParams,
+  encodeMsgApplyShardedFunding,
+  buildFundingApplyShardedSignDoc,
+  buildFundingApplyShardedSignedTx,
+} from "./modules/fundingrate";
+
+export {
+  type KlineProcessTradeParams,
+  encodeMsgProcessTrade,
+  buildKlineProcessTradeSignDoc,
+  buildKlineProcessTradeSignedTx,
+} from "./modules/kline";
+
+export {
+  type RiskLiquidationCheckParams,
+  encodeMsgLiquidationCheck,
+  buildRiskLiquidationCheckSignDoc,
+  buildRiskLiquidationCheckSignedTx,
+} from "./modules/risk";
 
 // gRPC client
 export {
@@ -137,3 +163,18 @@ export {
 
 // Solana utilities
 export { base58Decode, base58ToHex } from "./utils/solana";
+
+// WebSocket multiplex client
+export {
+  MorpheumWsClient,
+  WsError,
+  ChannelSpec,
+  Subscription,
+  AuthCredentials,
+  type AuthResponse,
+  type StreamEvent,
+  type StreamTier,
+  type WsClientConfig,
+  type WebSocketConstructor,
+  type WebSocketLike,
+} from "./ws";
