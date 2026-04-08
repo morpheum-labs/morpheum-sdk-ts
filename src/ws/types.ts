@@ -218,12 +218,12 @@ export class ChannelSpec {
     return ChannelSpec.withCoin("staking", coin);
   }
 
-  static clamm(coin: string): ChannelSpec {
-    return ChannelSpec.withCoin("clamm", coin);
+  static clmm(coin: string): ChannelSpec {
+    return ChannelSpec.withCoin("clmm", coin);
   }
 
-  static clammGrad(coin: string): ChannelSpec {
-    return ChannelSpec.withCoin("clammgrad", coin);
+  static clmmGrad(coin: string): ChannelSpec {
+    return ChannelSpec.withCoin("clmmgrad", coin);
   }
 
   static bondingCurve(coin: string): ChannelSpec {
