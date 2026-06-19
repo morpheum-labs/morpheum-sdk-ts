@@ -7,18 +7,26 @@
 import { createClient, type Client } from "@connectrpc/connect";
 import { createGrpcTransport } from "@connectrpc/connect-node";
 import { IngressService } from "@morpheum/proto/tx/v1/ingress_pb";
+import { Query as TxQuery } from "@morpheum/proto/tx/v1/query_pb";
 import { Query as ConsensusQuery } from "@morpheum/proto/consensus/v1/query_pb";
 import { Query as MarketQuery } from "@morpheum/proto/market/v1/query_pb";
 import { Query as BucketQuery } from "@morpheum/proto/bucket/v1/query_pb";
 import { Query as BankQuery } from "@morpheum/proto/bank/v1/query_pb";
 import { Query as ClobQuery } from "@morpheum/proto/clob/v1/query_pb";
 import { Query as PositionQuery } from "@morpheum/proto/position/v1/query_pb";
+import { Query as StakingQuery } from "@morpheum/proto/staking/v1/query_pb";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 import type { SubmitTxResponse } from "@morpheum/proto/tx/v1/ingress_pb";
 import type {
   QueryTxResponse,
   QueryTxStatusResponse,
+} from "@morpheum/proto/tx/v1/query_pb";
+import type {
+  QueryConsensusMetricsResponse,
+  QueryLatestTipsResponse,
 } from "@morpheum/proto/consensus/v1/query_pb";
+import type { Validator } from "@morpheum/proto/staking/v1/staking_pb";
+import type { QueryValidatorsResponse } from "@morpheum/proto/staking/v1/query_pb";
 import type {
   QueryMarketResponse,
   QueryMarketsResponse,
@@ -66,12 +74,14 @@ export interface MormcoreGrpcClientOptions {
 
 export class MormcoreGrpcClient {
   private readonly ingressClient: Client<typeof IngressService>;
+  private readonly txClient: Client<typeof TxQuery>;
   private readonly consensusClient: Client<typeof ConsensusQuery>;
   private readonly marketClient: Client<typeof MarketQuery>;
   private readonly bucketClient: Client<typeof BucketQuery>;
   private readonly bankClient: Client<typeof BankQuery>;
   private readonly clobClient: Client<typeof ClobQuery>;
   private readonly positionClient: Client<typeof PositionQuery>;
+  private readonly stakingClient: Client<typeof StakingQuery>;
   private readonly ensureTransport?: () => Promise<void>;
 
   constructor(options: MormcoreGrpcClientOptions) {
@@ -80,12 +90,14 @@ export class MormcoreGrpcClient {
       baseUrl: options.baseUrl,
     });
     this.ingressClient = createClient(IngressService, transport);
+    this.txClient = createClient(TxQuery, transport);
     this.consensusClient = createClient(ConsensusQuery, transport);
     this.marketClient = createClient(MarketQuery, transport);
     this.bucketClient = createClient(BucketQuery, transport);
     this.bankClient = createClient(BankQuery, transport);
     this.clobClient = createClient(ClobQuery, transport);
     this.positionClient = createClient(PositionQuery, transport);
+    this.stakingClient = createClient(StakingQuery, transport);
   }
 
   close(): void {
@@ -105,12 +117,38 @@ export class MormcoreGrpcClient {
 
   async queryTx(txhash: string): Promise<QueryTxResponse> {
     await this.ensureReady();
-    return this.consensusClient.queryTx({ txhash });
+    return this.txClient.queryTx({ txhash });
   }
 
   async queryTxStatus(txhash: string): Promise<QueryTxStatusResponse> {
     await this.ensureReady();
-    return this.consensusClient.queryTxStatus({ txhash });
+    return this.txClient.queryTxStatus({ txhash });
+  }
+
+  // -- Network KPI Queries (read-only) --
+
+  /** Validator set (`staking.v1.Query/QueryValidators`); pass `activeOnly` for the live set. */
+  async queryValidators(
+    options: { activeOnly?: boolean; limit?: number; offset?: number } = {},
+  ): Promise<QueryValidatorsResponse> {
+    await this.ensureReady();
+    return this.stakingClient.queryValidators({
+      activeOnly: options.activeOnly ?? false,
+      limit: options.limit ?? 0,
+      offset: options.offset ?? 0,
+    });
+  }
+
+  /** Aggregate consensus metrics (`consensus.v1.Query/QueryConsensusMetrics`). */
+  async queryConsensusMetrics(): Promise<QueryConsensusMetricsResponse> {
+    await this.ensureReady();
+    return this.consensusClient.queryConsensusMetrics({});
+  }
+
+  /** Latest blocklace tips across all shards (`consensus.v1.Query/QueryLatestTips`). */
+  async queryLatestTips(): Promise<QueryLatestTipsResponse> {
+    await this.ensureReady();
+    return this.consensusClient.queryLatestTips({});
   }
 
   // -- Market Queries --
@@ -721,7 +759,13 @@ export type { SubmitTxResponse } from "@morpheum/proto/tx/v1/ingress_pb";
 export type {
   QueryTxResponse,
   QueryTxStatusResponse,
+} from "@morpheum/proto/tx/v1/query_pb";
+export type {
+  QueryConsensusMetricsResponse,
+  QueryLatestTipsResponse,
 } from "@morpheum/proto/consensus/v1/query_pb";
+export type { Validator } from "@morpheum/proto/staking/v1/staking_pb";
+export type { QueryValidatorsResponse } from "@morpheum/proto/staking/v1/query_pb";
 export type { Market } from "@morpheum/proto/market/v1/market_pb";
 export type {
   QueryMarketResponse,
