@@ -5,6 +5,7 @@
 import { create, toBinary } from "@bufbuild/protobuf";
 import {
   MsgCreateBucketRequestSchema,
+  MsgSetLeverageSchema,
   MsgTransferBetweenBucketsRequestSchema,
   MsgTransferToBankRequestSchema,
 } from "@morpheum/proto/bucket/v1/tx_pb";
@@ -40,6 +41,13 @@ export interface BucketTransferToBankParams {
   bucketId: string;
   assetIndex: number;
   amount: string;
+}
+
+export interface BucketSetLeverageParams {
+  fromAddress: string;
+  bucketId: string;
+  marketIndex: number;
+  leverage: number;
 }
 
 const BUCKET_TX_PREFIX = "/bucket.v1.";
@@ -79,6 +87,18 @@ export function encodeMsgTransferToBank(
     fromAddress: params.fromAddress,
   });
   return toBinary(MsgTransferToBankRequestSchema, msg);
+}
+
+export function encodeMsgSetLeverage(
+  params: BucketSetLeverageParams,
+): Uint8Array {
+  const msg = create(MsgSetLeverageSchema, {
+    signer: params.fromAddress,
+    bucketId: params.bucketId,
+    marketIndex: BigInt(params.marketIndex),
+    leverage: params.leverage,
+  });
+  return toBinary(MsgSetLeverageSchema, msg);
 }
 
 function wasmSignDoc(
@@ -219,6 +239,46 @@ export function buildBucketTransferToBankSignedTx(
 ): Tx {
   return buildSignedTx(
     `${BUCKET_TX_PREFIX}MsgTransferToBankRequest`,
+    msgBytes,
+    signerAddress,
+    signature,
+    chainType,
+    signMode,
+    memo,
+  );
+}
+
+export function buildBucketSetLeverageSignDoc(
+  params: BucketSetLeverageParams,
+  signerAddress: string,
+  chainType: number,
+  signMode: number,
+  chainId: string,
+  memo: string = "",
+): SignDocResult & { msgBytes: Uint8Array } {
+  const msgBytes = encodeMsgSetLeverage(params);
+  const signDoc = wasmSignDoc(
+    `${BUCKET_TX_PREFIX}MsgSetLeverage`,
+    msgBytes,
+    signerAddress,
+    chainType,
+    signMode,
+    chainId,
+    memo,
+  );
+  return { ...signDoc, msgBytes };
+}
+
+export function buildBucketSetLeverageSignedTx(
+  msgBytes: Uint8Array,
+  signerAddress: string,
+  signature: Uint8Array,
+  chainType: number,
+  signMode: number,
+  memo: string = "",
+): Tx {
+  return buildSignedTx(
+    `${BUCKET_TX_PREFIX}MsgSetLeverage`,
     msgBytes,
     signerAddress,
     signature,

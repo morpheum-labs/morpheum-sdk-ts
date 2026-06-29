@@ -17,15 +17,19 @@ export {
   type BucketCreateParams,
   type BucketTransferParams,
   type BucketTransferToBankParams,
+  type BucketSetLeverageParams,
   encodeMsgCreateBucket,
   encodeMsgTransferBetweenBuckets,
   encodeMsgTransferToBank,
+  encodeMsgSetLeverage,
   buildBucketCreateSignDoc,
   buildBucketTransferSignDoc,
   buildBucketTransferToBankSignDoc,
+  buildBucketSetLeverageSignDoc,
   buildBucketCreateSignedTx,
   buildBucketTransferSignedTx,
   buildBucketTransferToBankSignedTx,
+  buildBucketSetLeverageSignedTx,
 } from "./modules/bucket";
 
 export {
@@ -84,25 +88,10 @@ export {
 } from "./modules/position";
 
 export {
-  type FundingPositionInput,
-  type FundingApplyShardedParams,
-  encodeMsgApplyShardedFunding,
-  buildFundingApplyShardedSignDoc,
-  buildFundingApplyShardedSignedTx,
-} from "./modules/fundingrate";
-
-export {
-  type KlineProcessTradeParams,
-  encodeMsgProcessTrade,
-  buildKlineProcessTradeSignDoc,
-  buildKlineProcessTradeSignedTx,
-} from "./modules/kline";
-
-export {
-  type RiskLiquidationCheckParams,
-  encodeMsgLiquidationCheck,
-  buildRiskLiquidationCheckSignDoc,
-  buildRiskLiquidationCheckSignedTx,
+  type RiskTriggerLiquidationParams,
+  encodeMsgTriggerLiquidation,
+  buildRiskTriggerLiquidationSignDoc,
+  buildRiskTriggerLiquidationSignedTx,
 } from "./modules/risk";
 
 // gRPC client

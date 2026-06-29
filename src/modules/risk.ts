@@ -1,19 +1,25 @@
 /**
- * Risk module — typed transaction builders for liquidation checks.
+ * Risk module — typed transaction builders for permissionless liquidation triggers.
+ *
+ * `MsgTriggerLiquidation` is permissionless: any signer (keeper bot or user) may
+ * request a liquidation scan for a market. The chain derives the current mark
+ * price and logical timestamp deterministically from committed state, so the
+ * message carries only the market and an optional bucket hint. A `bucketId` of
+ * `"0"` requests a market-wide scan rather than a single-bucket check.
  */
 import { create, toBinary } from "@bufbuild/protobuf";
-import { MsgLiquidationCheckSchema } from "@morpheum/proto/risk/v1/tx_pb";
+import { MsgTriggerLiquidationSchema } from "@morpheum/proto/risk/v1/tx_pb";
 import { buildSignDocBytes } from "@morpheum/signing-node";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
 import type { SignDocResult } from "./bucket";
 
-const LIQUIDATION_CHECK_TYPE_URL = "/risk.v1.MsgLiquidationCheck";
+const TRIGGER_LIQUIDATION_TYPE_URL = "/risk.v1.MsgTriggerLiquidation";
 
-export interface RiskLiquidationCheckParams {
+export interface RiskTriggerLiquidationParams {
   marketIndex: number;
-  markPrice: string;
-  logicalTimestamp: string;
+  /** Target bucket id; `"0"` (default) requests a market-wide scan. */
+  bucketId?: string;
 }
 
 function wasmSignDoc(
@@ -43,30 +49,29 @@ function wasmSignDoc(
   };
 }
 
-export function encodeMsgLiquidationCheck(
-  params: RiskLiquidationCheckParams,
+export function encodeMsgTriggerLiquidation(
+  params: RiskTriggerLiquidationParams,
 ): Uint8Array {
   return toBinary(
-    MsgLiquidationCheckSchema,
-    create(MsgLiquidationCheckSchema, {
+    MsgTriggerLiquidationSchema,
+    create(MsgTriggerLiquidationSchema, {
       marketIndex: BigInt(params.marketIndex),
-      markPrice: BigInt(params.markPrice),
-      logicalTimestamp: BigInt(params.logicalTimestamp),
+      bucketId: BigInt(params.bucketId ?? "0"),
     }),
   );
 }
 
-export function buildRiskLiquidationCheckSignDoc(
-  params: RiskLiquidationCheckParams,
+export function buildRiskTriggerLiquidationSignDoc(
+  params: RiskTriggerLiquidationParams,
   signerAddress: string,
   chainType: number,
   signMode: number,
   chainId: string,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgLiquidationCheck(params);
+  const msgBytes = encodeMsgTriggerLiquidation(params);
   const signDoc = wasmSignDoc(
-    LIQUIDATION_CHECK_TYPE_URL,
+    TRIGGER_LIQUIDATION_TYPE_URL,
     msgBytes,
     signerAddress,
     chainType,
@@ -77,7 +82,7 @@ export function buildRiskLiquidationCheckSignDoc(
   return { ...signDoc, msgBytes };
 }
 
-export function buildRiskLiquidationCheckSignedTx(
+export function buildRiskTriggerLiquidationSignedTx(
   msgBytes: Uint8Array,
   signerAddress: string,
   signature: Uint8Array,
@@ -86,7 +91,7 @@ export function buildRiskLiquidationCheckSignedTx(
   memo: string = "",
 ): Tx {
   return buildSignedTx(
-    LIQUIDATION_CHECK_TYPE_URL,
+    TRIGGER_LIQUIDATION_TYPE_URL,
     msgBytes,
     signerAddress,
     signature,
