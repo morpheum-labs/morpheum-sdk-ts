@@ -14,8 +14,6 @@ import type { SignDocResult } from "./bucket";
 
 export interface MarketParamsInput {
   minOrderSize: string;
-  takerFeeRate: string;
-  makerFeeRate: string;
   tickSize?: string;
   lotSize?: string;
   maxLeverage?: string;
@@ -58,8 +56,6 @@ export function encodeMsgCreateMarket(params: MarketCreateParams): Uint8Array {
     orderbookType: params.orderbookType,
     params: {
       minOrderSize: params.params.minOrderSize,
-      takerFeeRate: params.params.takerFeeRate,
-      makerFeeRate: params.params.makerFeeRate,
       tickSize: params.params.tickSize ?? "",
       lotSize: params.params.lotSize ?? "",
       maxLeverage: params.params.maxLeverage ?? "",
