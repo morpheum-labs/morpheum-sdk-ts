@@ -24,7 +24,11 @@ import {
 } from "@bufbuild/protobuf/wkt";
 import { keccak256 } from "ethers";
 import { buildSignedTx } from "../tx-signed";
-import { buildSignDoc, type SignDocResult } from "../sign-doc";
+import {
+  buildSignDoc,
+  type ChainIdentity,
+  type SignDocResult,
+} from "../sign-doc";
 
 export interface ClobPlaceOrderParams {
   fromAddress: string;
@@ -221,7 +225,7 @@ export function buildClobPlaceOrderSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgPlaceOrder(params);
@@ -231,7 +235,7 @@ export function buildClobPlaceOrderSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -263,7 +267,7 @@ export function buildClobPlaceBatchOrdersSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgPlaceBatchOrders(params);
@@ -273,7 +277,7 @@ export function buildClobPlaceBatchOrdersSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -330,7 +334,7 @@ export function buildClobModifyOrderSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgModifyOrder(params);
@@ -340,7 +344,7 @@ export function buildClobModifyOrderSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -415,7 +419,7 @@ export function buildClobCancelOrderSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCancelOrder(params);
@@ -425,7 +429,7 @@ export function buildClobCancelOrderSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -457,7 +461,7 @@ export function buildClobProvideMarketMakerQuoteSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgProvideMarketMakerQuote(params);
@@ -467,7 +471,7 @@ export function buildClobProvideMarketMakerQuoteSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -499,7 +503,7 @@ export function buildClobCancelMarketMakerQuoteSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCancelMarketMakerQuote(params);
@@ -509,7 +513,7 @@ export function buildClobCancelMarketMakerQuoteSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };

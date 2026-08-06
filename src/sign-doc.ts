@@ -55,6 +55,42 @@ export function newNonce(): Nonce {
   });
 }
 
+/**
+ * The chain a transaction is being signed for.
+ *
+ * `chainId` and `genesisHash` travel together because the verifier selects
+ * acceptable signing preimages from both at once — they are one fact about one
+ * chain, not two independent settings, and separating them is how they drift.
+ *
+ * Deliberately a single object rather than two positional parameters. This
+ * SDK's original defect was a ten-parameter call made with eight arguments:
+ * the trailing bindings silently defaulted, and every transaction shipped a
+ * nonce no signature covered. Adding another optional trailing parameter would
+ * reproduce that failure mode exactly. A missing field on a named object is a
+ * type error; a missing trailing argument is a security downgrade.
+ *
+ * # Trust
+ *
+ * Both values are chain identity and belong to the same trust root: operator
+ * configuration. Neither should be fetched from the node being submitted to. A
+ * client that asked its RPC endpoint for the genesis hash and signed against
+ * the answer would let whoever controls that endpoint choose which chain the
+ * signature authorises — the cross-chain replay the binding exists to prevent.
+ */
+export interface ChainIdentity {
+  chainId: string;
+  /**
+   * The target chain's genesis hash (Phase M3), which stops a signature valid
+   * on one chain being replayed onto another that shares its `chainId`.
+   *
+   * Optional while the strict genesis fork is advisory: verifiers still accept
+   * unbound signatures, placing them on the `GenesisUnbound` preimage rung.
+   * Supply it wherever it is configured — that is what moves adoption toward
+   * the point where the fork can safely activate.
+   */
+  genesisHash?: Uint8Array;
+}
+
 /** Optional bindings a caller can add to the signing preimage. */
 export interface SignDocOptions {
   /**
@@ -62,16 +98,6 @@ export interface SignDocOptions {
    * returned in {@link SignDocResult.nonce} and must be the value sent.
    */
   nonce?: Nonce;
-  /**
-   * The target chain's genesis hash (Phase M3), which stops a signature valid
-   * on one chain being replayed onto another that shares its `chainId`.
-   *
-   * Optional because no RPC exposes it yet, so callers have no way to obtain
-   * one. Verifiers accept unbound signatures while the strict genesis fork is
-   * advisory — they land on the `GenesisUnbound` preimage rung. Supply it as
-   * soon as a source exists.
-   */
-  genesisHash?: Uint8Array;
 }
 
 /**
@@ -86,7 +112,7 @@ export function buildSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string,
   options: SignDocOptions = {},
 ): SignDocResult {
@@ -97,10 +123,10 @@ export function buildSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain.chainId,
     memo || undefined,
     undefined,
-    options.genesisHash,
+    chain.genesisHash,
     toBinary(NonceSchema, nonce),
   );
   return {

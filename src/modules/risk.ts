@@ -11,7 +11,11 @@ import { create, toBinary } from "@bufbuild/protobuf";
 import { MsgTriggerLiquidationSchema } from "@morpheum/proto/risk/v1/tx_pb";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
-import { buildSignDoc, type SignDocResult } from "../sign-doc";
+import {
+  buildSignDoc,
+  type ChainIdentity,
+  type SignDocResult,
+} from "../sign-doc";
 
 const TRIGGER_LIQUIDATION_TYPE_URL = "/risk.v1.MsgTriggerLiquidation";
 
@@ -39,7 +43,7 @@ export function buildRiskTriggerLiquidationSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgTriggerLiquidation(params);
@@ -49,7 +53,7 @@ export function buildRiskTriggerLiquidationSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
