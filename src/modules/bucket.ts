@@ -9,16 +9,11 @@ import {
   MsgTransferBetweenBucketsRequestSchema,
   MsgTransferToBankRequestSchema,
 } from "@morpheum/proto/bucket/v1/tx_pb";
-import { buildSignDocBytes } from "@morpheum/signing-node";
 import { buildSignedTx } from "../tx-signed";
+import { buildSignDoc, type SignDocResult } from "../sign-doc";
+export type { SignDocResult } from "../sign-doc";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 
-export interface SignDocResult {
-  signDocHash: string;
-  signDocBytes: Uint8Array;
-  bodyBytes: Uint8Array;
-  authInfoBytes: Uint8Array;
-}
 
 export interface BucketCreateParams {
   fromAddress: string;
@@ -101,32 +96,6 @@ export function encodeMsgSetLeverage(
   return toBinary(MsgSetLeverageSchema, msg);
 }
 
-function wasmSignDoc(
-  typeUrl: string,
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  chainType: number,
-  signMode: number,
-  chainId: string,
-  memo: string,
-): SignDocResult {
-  const result = buildSignDocBytes(
-    typeUrl,
-    msgBytes,
-    signerAddress,
-    chainType,
-    signMode,
-    chainId,
-    memo || undefined,
-    undefined,
-  );
-  return {
-    signDocHash: result.signDocHash,
-    signDocBytes: new Uint8Array(result.signDocBytes),
-    bodyBytes: new Uint8Array(result.bodyBytes),
-    authInfoBytes: new Uint8Array(result.authInfoBytes),
-  };
-}
 
 export function buildBucketCreateSignDoc(
   params: BucketCreateParams,
@@ -137,7 +106,7 @@ export function buildBucketCreateSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCreateBucket(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgCreateBucketRequest`,
     msgBytes,
     signerAddress,
@@ -158,7 +127,7 @@ export function buildBucketTransferSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgTransferBetweenBuckets(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgTransferBetweenBucketsRequest`,
     msgBytes,
     signerAddress,
@@ -179,7 +148,7 @@ export function buildBucketTransferToBankSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgTransferToBank(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgTransferToBankRequest`,
     msgBytes,
     signerAddress,
@@ -197,6 +166,7 @@ export function buildBucketCreateSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -206,6 +176,7 @@ export function buildBucketCreateSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -216,6 +187,7 @@ export function buildBucketTransferSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -225,6 +197,7 @@ export function buildBucketTransferSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -235,6 +208,7 @@ export function buildBucketTransferToBankSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -244,6 +218,7 @@ export function buildBucketTransferToBankSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -257,7 +232,7 @@ export function buildBucketSetLeverageSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgSetLeverage(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgSetLeverage`,
     msgBytes,
     signerAddress,
@@ -275,6 +250,7 @@ export function buildBucketSetLeverageSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -284,6 +260,7 @@ export function buildBucketSetLeverageSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }

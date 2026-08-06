@@ -3,7 +3,7 @@
  *
  * Uses generated proto types from @morpheum/proto directly (camelCase, typed).
  */
-import { create } from "@bufbuild/protobuf";
+import { create, fromBinary } from "@bufbuild/protobuf";
 import {
   TxSchema,
   TxBodySchema,
@@ -27,6 +27,15 @@ function buildSignerKeyInfo(signerAddress: string, chainType: number) {
   };
 }
 
+/**
+ * Assembles the signed transaction.
+ *
+ * `nonce` must be the `nonce` returned by {@link buildSignDoc} — the encoding
+ * the signature actually covered. This parameter is required, and the value is
+ * decoded rather than reconstructed, because the alternative is what this SDK
+ * used to do: mint a fresh nonce here that no signature covered, leaving the
+ * replay-protection field rewritable by any observer.
+ */
 export function buildSignedTx(
   typeUrl: string,
   msgBytes: Uint8Array,
@@ -34,6 +43,7 @@ export function buildSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   const keyInfo = buildSignerKeyInfo(signerAddress, chainType);
@@ -55,10 +65,6 @@ export function buildSignedTx(
       ],
     }),
     signatures: [signature],
-    nonce: create(NonceSchema, {
-      monotonic: 0n,
-      tsMs: Date.now() % 0x100000000,
-      sub: 0,
-    }),
+    nonce: fromBinary(NonceSchema, nonce),
   });
 }
