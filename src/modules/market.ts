@@ -8,7 +8,11 @@ import {
   MsgSuspendMarketRequestSchema,
 } from "@morpheum/proto/market/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
-import { buildSignDoc, type SignDocResult } from "../sign-doc";
+import {
+  buildSignDoc,
+  type ChainIdentity,
+  type SignDocResult,
+} from "../sign-doc";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 
 export interface MarketParamsInput {
@@ -94,7 +98,7 @@ export function buildMarketCreateSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCreateMarket(params);
@@ -104,7 +108,7 @@ export function buildMarketCreateSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -115,7 +119,7 @@ export function buildMarketActivateSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgActivateMarket(params);
@@ -125,7 +129,7 @@ export function buildMarketActivateSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -136,7 +140,7 @@ export function buildMarketSuspendSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgSuspendMarket(params);
@@ -146,7 +150,7 @@ export function buildMarketSuspendSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };

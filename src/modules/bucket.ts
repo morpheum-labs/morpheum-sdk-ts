@@ -10,8 +10,11 @@ import {
   MsgTransferToBankRequestSchema,
 } from "@morpheum/proto/bucket/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
-import { buildSignDoc, type SignDocResult } from "../sign-doc";
-export type { SignDocResult } from "../sign-doc";
+import {
+  buildSignDoc,
+  type ChainIdentity,
+  type SignDocResult,
+} from "../sign-doc";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 
 
@@ -97,7 +100,7 @@ export function buildBucketCreateSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCreateBucket(params);
@@ -107,7 +110,7 @@ export function buildBucketCreateSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -118,7 +121,7 @@ export function buildBucketTransferSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgTransferBetweenBuckets(params);
@@ -128,7 +131,7 @@ export function buildBucketTransferSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -139,7 +142,7 @@ export function buildBucketTransferToBankSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgTransferToBank(params);
@@ -149,7 +152,7 @@ export function buildBucketTransferToBankSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -223,7 +226,7 @@ export function buildBucketSetLeverageSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgSetLeverage(params);
@@ -233,7 +236,7 @@ export function buildBucketSetLeverageSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };

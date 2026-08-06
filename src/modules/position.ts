@@ -8,7 +8,11 @@ import {
 } from "@morpheum/proto/position/v1/tx_pb";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
-import { buildSignDoc, type SignDocResult } from "../sign-doc";
+import {
+  buildSignDoc,
+  type ChainIdentity,
+  type SignDocResult,
+} from "../sign-doc";
 
 export interface PositionCloseParams {
   fromAddress: string;
@@ -59,7 +63,7 @@ export function buildPositionCloseSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgClosePosition(params);
@@ -69,7 +73,7 @@ export function buildPositionCloseSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };
@@ -80,7 +84,7 @@ export function buildPositionUpdateLeverageSignDoc(
   signerAddress: string,
   chainType: number,
   signMode: number,
-  chainId: string,
+  chain: ChainIdentity,
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgUpdatePositionLeverage(params);
@@ -90,7 +94,7 @@ export function buildPositionUpdateLeverageSignDoc(
     signerAddress,
     chainType,
     signMode,
-    chainId,
+    chain,
     memo,
   );
   return { ...signDoc, msgBytes };

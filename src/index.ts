@@ -8,12 +8,21 @@
 // WASM-backed SignDoc construction (single source of truth)
 export { buildSignDocBytes } from "@morpheum/signing-node";
 
+// Canonical SignDoc construction — the single place this SDK decides what a
+// transaction's signature covers.
+export {
+  buildSignDoc,
+  newNonce,
+  type ChainIdentity,
+  type SignDocOptions,
+  type SignDocResult,
+} from "./sign-doc";
+
 // Tx assembly for gRPC submission
 export { buildSignedTx } from "./tx-signed";
 
 // Module-specific builders
 export {
-  type SignDocResult,
   type BucketCreateParams,
   type BucketTransferParams,
   type BucketTransferToBankParams,
