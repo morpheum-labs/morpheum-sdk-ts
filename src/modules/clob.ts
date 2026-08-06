@@ -10,7 +10,6 @@ import {
   MsgPlaceOrderRequestSchema,
   MsgProvideMarketMakerQuoteRequestSchema,
 } from "@morpheum/proto/clob/v1/tx_pb";
-import { buildSignDocBytes } from "@morpheum/signing-node";
 import {
   AuthInfoSchema,
   NonceSchema,
@@ -25,7 +24,7 @@ import {
 } from "@bufbuild/protobuf/wkt";
 import { keccak256 } from "ethers";
 import { buildSignedTx } from "../tx-signed";
-import type { SignDocResult } from "./bucket";
+import { buildSignDoc, type SignDocResult } from "../sign-doc";
 
 export interface ClobPlaceOrderParams {
   fromAddress: string;
@@ -216,32 +215,6 @@ export function encodeMsgPlaceBatchOrders(
   return toBinary(MsgPlaceBatchOrdersRequestSchema, msg);
 }
 
-function wasmSignDoc(
-  typeUrl: string,
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  chainType: number,
-  signMode: number,
-  chainId: string,
-  memo: string,
-): SignDocResult {
-  const result = buildSignDocBytes(
-    typeUrl,
-    msgBytes,
-    signerAddress,
-    chainType,
-    signMode,
-    chainId,
-    memo || undefined,
-    undefined,
-  );
-  return {
-    signDocHash: result.signDocHash,
-    signDocBytes: new Uint8Array(result.signDocBytes),
-    bodyBytes: new Uint8Array(result.bodyBytes),
-    authInfoBytes: new Uint8Array(result.authInfoBytes),
-  };
-}
 
 export function buildClobPlaceOrderSignDoc(
   params: ClobPlaceOrderParams,
@@ -252,7 +225,7 @@ export function buildClobPlaceOrderSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgPlaceOrder(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     PLACE_ORDER_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -270,6 +243,7 @@ export function buildClobPlaceOrderSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -279,6 +253,7 @@ export function buildClobPlaceOrderSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -292,7 +267,7 @@ export function buildClobPlaceBatchOrdersSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgPlaceBatchOrders(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     PLACE_BATCH_ORDERS_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -310,20 +285,21 @@ export function buildClobPlaceBatchOrdersSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
   bodyBytes?: Uint8Array,
   authInfoBytes?: Uint8Array,
 ): Tx {
+  // Fast path: reuse the exact body/auth bytes that were signed rather than
+  // re-encoding them from parts. The nonce is threaded through for the same
+  // reason — it must be the one the signature covered, not a fresh one minted
+  // here, which is what this branch used to do.
   if (bodyBytes && authInfoBytes) {
     return create(TxSchema, {
       body: fromBinary(TxBodySchema, bodyBytes),
       authInfo: fromBinary(AuthInfoSchema, authInfoBytes),
       signatures: [signature],
-      nonce: create(NonceSchema, {
-        monotonic: 0n,
-        tsMs: Date.now() % 0x100000000,
-        sub: 0,
-      }),
+      nonce: fromBinary(NonceSchema, nonce),
     });
   }
   return buildSignedTx(
@@ -333,6 +309,7 @@ export function buildClobPlaceBatchOrdersSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -357,7 +334,7 @@ export function buildClobModifyOrderSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgModifyOrder(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     MODIFY_ORDER_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -375,6 +352,7 @@ export function buildClobModifyOrderSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -384,6 +362,7 @@ export function buildClobModifyOrderSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -440,7 +419,7 @@ export function buildClobCancelOrderSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCancelOrder(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     CANCEL_ORDER_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -458,6 +437,7 @@ export function buildClobCancelOrderSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -467,6 +447,7 @@ export function buildClobCancelOrderSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -480,7 +461,7 @@ export function buildClobProvideMarketMakerQuoteSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgProvideMarketMakerQuote(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     PROVIDE_MARKET_MAKER_QUOTE_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -498,6 +479,7 @@ export function buildClobProvideMarketMakerQuoteSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -507,6 +489,7 @@ export function buildClobProvideMarketMakerQuoteSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -520,7 +503,7 @@ export function buildClobCancelMarketMakerQuoteSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCancelMarketMakerQuote(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     CANCEL_MARKET_MAKER_QUOTE_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -538,6 +521,7 @@ export function buildClobCancelMarketMakerQuoteSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -547,6 +531,7 @@ export function buildClobCancelMarketMakerQuoteSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }

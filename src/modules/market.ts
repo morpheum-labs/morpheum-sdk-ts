@@ -7,10 +7,9 @@ import {
   MsgCreateMarketRequestSchema,
   MsgSuspendMarketRequestSchema,
 } from "@morpheum/proto/market/v1/tx_pb";
-import { buildSignDocBytes } from "@morpheum/signing-node";
 import { buildSignedTx } from "../tx-signed";
+import { buildSignDoc, type SignDocResult } from "../sign-doc";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
-import type { SignDocResult } from "./bucket";
 
 export interface MarketParamsInput {
   minOrderSize: string;
@@ -89,32 +88,6 @@ export function encodeMsgSuspendMarket(
   return toBinary(MsgSuspendMarketRequestSchema, msg);
 }
 
-function wasmSignDoc(
-  typeUrl: string,
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  chainType: number,
-  signMode: number,
-  chainId: string,
-  memo: string,
-): SignDocResult {
-  const result = buildSignDocBytes(
-    typeUrl,
-    msgBytes,
-    signerAddress,
-    chainType,
-    signMode,
-    chainId,
-    memo || undefined,
-    undefined,
-  );
-  return {
-    signDocHash: result.signDocHash,
-    signDocBytes: new Uint8Array(result.signDocBytes),
-    bodyBytes: new Uint8Array(result.bodyBytes),
-    authInfoBytes: new Uint8Array(result.authInfoBytes),
-  };
-}
 
 export function buildMarketCreateSignDoc(
   params: MarketCreateParams,
@@ -125,7 +98,7 @@ export function buildMarketCreateSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgCreateMarket(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     CREATE_MARKET_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -146,7 +119,7 @@ export function buildMarketActivateSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgActivateMarket(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     ACTIVATE_MARKET_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -167,7 +140,7 @@ export function buildMarketSuspendSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgSuspendMarket(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     SUSPEND_MARKET_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -185,6 +158,7 @@ export function buildMarketCreateSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -194,6 +168,7 @@ export function buildMarketCreateSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -204,6 +179,7 @@ export function buildMarketActivateSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -213,6 +189,7 @@ export function buildMarketActivateSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -223,6 +200,7 @@ export function buildMarketSuspendSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -232,6 +210,7 @@ export function buildMarketSuspendSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }

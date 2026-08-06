@@ -6,10 +6,9 @@ import {
   MsgClosePositionSchema,
   MsgUpdatePositionLeverageSchema,
 } from "@morpheum/proto/position/v1/tx_pb";
-import { buildSignDocBytes } from "@morpheum/signing-node";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
-import type { SignDocResult } from "./bucket";
+import { buildSignDoc, type SignDocResult } from "../sign-doc";
 
 export interface PositionCloseParams {
   fromAddress: string;
@@ -29,32 +28,6 @@ export interface PositionUpdateLeverageParams {
 const CLOSE_POSITION_TYPE_URL = "/position.v1.Msg/ClosePosition";
 const UPDATE_POSITION_LEVERAGE_TYPE_URL = "/position.v1.Msg/UpdatePositionLeverage";
 
-function wasmSignDoc(
-  typeUrl: string,
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  chainType: number,
-  signMode: number,
-  chainId: string,
-  memo: string,
-): SignDocResult {
-  const result = buildSignDocBytes(
-    typeUrl,
-    msgBytes,
-    signerAddress,
-    chainType,
-    signMode,
-    chainId,
-    memo || undefined,
-    undefined,
-  );
-  return {
-    signDocHash: result.signDocHash,
-    signDocBytes: new Uint8Array(result.signDocBytes),
-    bodyBytes: new Uint8Array(result.bodyBytes),
-    authInfoBytes: new Uint8Array(result.authInfoBytes),
-  };
-}
 
 export function encodeMsgClosePosition(
   params: PositionCloseParams,
@@ -90,7 +63,7 @@ export function buildPositionCloseSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgClosePosition(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     CLOSE_POSITION_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -111,7 +84,7 @@ export function buildPositionUpdateLeverageSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgUpdatePositionLeverage(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     UPDATE_POSITION_LEVERAGE_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -129,6 +102,7 @@ export function buildPositionCloseSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -138,6 +112,7 @@ export function buildPositionCloseSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
@@ -148,6 +123,7 @@ export function buildPositionUpdateLeverageSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -157,6 +133,7 @@ export function buildPositionUpdateLeverageSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }

@@ -9,10 +9,9 @@
  */
 import { create, toBinary } from "@bufbuild/protobuf";
 import { MsgTriggerLiquidationSchema } from "@morpheum/proto/risk/v1/tx_pb";
-import { buildSignDocBytes } from "@morpheum/signing-node";
 import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 import { buildSignedTx } from "../tx-signed";
-import type { SignDocResult } from "./bucket";
+import { buildSignDoc, type SignDocResult } from "../sign-doc";
 
 const TRIGGER_LIQUIDATION_TYPE_URL = "/risk.v1.MsgTriggerLiquidation";
 
@@ -22,32 +21,6 @@ export interface RiskTriggerLiquidationParams {
   bucketId?: string;
 }
 
-function wasmSignDoc(
-  typeUrl: string,
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  chainType: number,
-  signMode: number,
-  chainId: string,
-  memo: string,
-): SignDocResult {
-  const result = buildSignDocBytes(
-    typeUrl,
-    msgBytes,
-    signerAddress,
-    chainType,
-    signMode,
-    chainId,
-    memo || undefined,
-    undefined,
-  );
-  return {
-    signDocHash: result.signDocHash,
-    signDocBytes: new Uint8Array(result.signDocBytes),
-    bodyBytes: new Uint8Array(result.bodyBytes),
-    authInfoBytes: new Uint8Array(result.authInfoBytes),
-  };
-}
 
 export function encodeMsgTriggerLiquidation(
   params: RiskTriggerLiquidationParams,
@@ -70,7 +43,7 @@ export function buildRiskTriggerLiquidationSignDoc(
   memo: string = "",
 ): SignDocResult & { msgBytes: Uint8Array } {
   const msgBytes = encodeMsgTriggerLiquidation(params);
-  const signDoc = wasmSignDoc(
+  const signDoc = buildSignDoc(
     TRIGGER_LIQUIDATION_TYPE_URL,
     msgBytes,
     signerAddress,
@@ -88,6 +61,7 @@ export function buildRiskTriggerLiquidationSignedTx(
   signature: Uint8Array,
   chainType: number,
   signMode: number,
+  nonce: Uint8Array,
   memo: string = "",
 ): Tx {
   return buildSignedTx(
@@ -97,6 +71,7 @@ export function buildRiskTriggerLiquidationSignedTx(
     signature,
     chainType,
     signMode,
+    nonce,
     memo,
   );
 }
