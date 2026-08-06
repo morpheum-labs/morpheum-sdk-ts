@@ -49,7 +49,6 @@ const BUCKET_TX_PREFIX = "/bucket.v1.";
 
 export function encodeMsgCreateBucket(params: BucketCreateParams): Uint8Array {
   const msg = create(MsgCreateBucketRequestSchema, {
-    address: params.fromAddress,
     bucketId: params.bucketId,
     bucketType: params.bucketType,
     collateralAssetIndex: BigInt(params.collateralAssetIndex),
@@ -62,7 +61,6 @@ export function encodeMsgTransferBetweenBuckets(
   params: BucketTransferParams,
 ): Uint8Array {
   const msg = create(MsgTransferBetweenBucketsRequestSchema, {
-    address: params.fromAddress,
     sourceBucketId: params.sourceBucketId,
     targetBucketId: params.targetBucketId,
     amount: params.amount,
@@ -75,11 +73,9 @@ export function encodeMsgTransferToBank(
   params: BucketTransferToBankParams,
 ): Uint8Array {
   const msg = create(MsgTransferToBankRequestSchema, {
-    address: params.fromAddress,
     bucketId: params.bucketId,
     assetIndex: BigInt(params.assetIndex),
     amount: params.amount,
-    fromAddress: params.fromAddress,
   });
   return toBinary(MsgTransferToBankRequestSchema, msg);
 }
@@ -88,7 +84,6 @@ export function encodeMsgSetLeverage(
   params: BucketSetLeverageParams,
 ): Uint8Array {
   const msg = create(MsgSetLeverageSchema, {
-    signer: params.fromAddress,
     bucketId: params.bucketId,
     marketIndex: BigInt(params.marketIndex),
     leverage: params.leverage,
