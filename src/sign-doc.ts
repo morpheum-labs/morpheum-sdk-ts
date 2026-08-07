@@ -23,46 +23,43 @@ import { buildSignDocBytes } from "@morpheum/signing-node";
 /** Compile-time assertion helper: instantiating with `false` is a type error. */
 type Assert<T extends true> = T;
 
-type SignDocBytesParams = Parameters<typeof buildSignDocBytes>;
+type SignDocBytesRequest = Parameters<typeof buildSignDocBytes>[0];
 
 /**
  * Pins the property this module exists to guarantee: **binding a nonce is not
  * optional**.
  *
  * The original defect was that `buildSignDocBytes` took a trailing optional
- * nonce and every caller omitted it. Making the parameter required is what
- * turned "please pass a nonce" into a compile error — so that requirement is
- * load-bearing, and nothing else here would notice it going away.
+ * nonce and every caller omitted it. Making it required is what turned "please
+ * pass a nonce" from a convention into a compile error, and nothing else here
+ * would notice that going away.
  *
  * Asserted against the *shipped* declaration rather than the source that
- * produces it: ten parameters, and a tenth that cannot be `undefined`. So it
- * fires if the Rust parameter ever returns to `Option<Vec<u8>>`, which would
- * regenerate an honest declaration with an optional nonce and nothing
- * hand-written anywhere to notice. `tsc --noEmit` is already a gate, so that is
- * a red build rather than a silent downgrade to unsigned replay protection.
+ * produces it: `nonce` must be present on the request type and must not admit
+ * `undefined`. It fires if the Rust field ever gains `#[serde(default)]` or
+ * becomes `Option`, either of which would regenerate an honest declaration with
+ * an optional nonce and nothing hand-written anywhere to notice. `tsc --noEmit`
+ * is already a gate, so that is a red build rather than a silent downgrade to
+ * unsigned replay protection.
  *
- * # What this does not cover
+ * This replaces an arity check (`Parameters<...>["length"] extends 10`) that
+ * the move to a named request object made meaningless — and the property is the
+ * better thing to pin anyway. It also closes that pin's documented blind spot:
+ * `Parameters<T>` reads only the last overload, so a reintroduced stale
+ * declaration went undetected. A stale *interface* cannot hide the same way,
+ * because TypeScript merges interface declarations and rejects a member whose
+ * optionality disagrees with an existing one.
  *
- * A *second*, stale declaration of the same function — which is how the
- * requirement actually went away once, via a hand-written
- * `typescript_custom_section` in the wasm crate still carrying the
- * eight-parameter shape. TypeScript merges two declarations into an overload
- * set, and `Parameters<T>` reads only the last signature, so this pin stays
- * green while the nonce-less call compiles. Measured, not assumed. Detecting
- * that needs a `@ts-expect-error` on a real eight-argument call, and this
- * package publishes its sources, so such an assertion would compile into every
- * consumer's build. It is pinned at its source instead, where it is free:
- * `morpheum-signing`'s `crates/wasm/tests/typescript_contract.rs` rejects any
- * hand-written declaration of a symbol `wasm_bindgen` generates.
- *
- * Type-level on purpose — a type alias emits nothing.
+ * Type-level on purpose — this package publishes its TypeScript sources, so an
+ * expression-level assertion would compile into every consumer's build. A type
+ * alias emits nothing.
  */
 type _NonceBindingIsMandatory = Assert<
-  SignDocBytesParams["length"] extends 10
-    ? undefined extends SignDocBytesParams[9]
+  {} extends Pick<SignDocBytesRequest, "nonce">
+    ? false
+    : undefined extends SignDocBytesRequest["nonce"]
       ? false
       : true
-    : false
 >;
 
 /**
@@ -162,18 +159,17 @@ export function buildSignDoc(
   options: SignDocOptions = {},
 ): SignDocResult {
   const nonce = options.nonce ?? newNonce();
-  const result = buildSignDocBytes(
+  const result = buildSignDocBytes({
     typeUrl,
     msgBytes,
     signerAddress,
     chainType,
     signMode,
-    chain.chainId,
-    memo || undefined,
-    undefined,
-    chain.genesisHash,
-    toBinary(NonceSchema, nonce),
-  );
+    chainId: chain.chainId,
+    memo: memo || undefined,
+    genesisHash: chain.genesisHash,
+    nonce: toBinary(NonceSchema, nonce),
+  });
   return {
     signDocHash: result.signDocHash,
     signDocBytes: new Uint8Array(result.signDocBytes),
