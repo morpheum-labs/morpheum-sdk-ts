@@ -46,6 +46,7 @@ export {
   type MarketCreateParams,
   type MarketParamsInput,
   type MarketSuspendParams,
+  CLOB_ORDERBOOK,
   encodeMsgActivateMarket,
   encodeMsgCreateMarket,
   encodeMsgSuspendMarket,

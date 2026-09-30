@@ -37,6 +37,12 @@ npx tsc --noEmit -p tsconfig.json    # THE gate — there is no test script or C
   check lockfiles when generated types disagree.
 - Keep the public surface exported from `src/index.ts` only; no deep-path imports in docs
   or examples.
+- `encodeMsgCreateMarket` is the one place a market creation's terms are checked, and
+  `buildMarketCreateSignDoc` encodes through it: a market that trades on the CLOB needs
+  whole-number `tickSize` and `lotSize` (an absent `maxLeverage` encodes as `""`, a 1x
+  cap); a market off the CLOB carries none of the three. Never default a missing tick or
+  lot on a CLOB market to `""` or a decimal; terms outside the accepted form must throw
+  before a SignDoc is built.
 
 <!-- framework:begin ripple -->
 ## Cross-repo ripple
