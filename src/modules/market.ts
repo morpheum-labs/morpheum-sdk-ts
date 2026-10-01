@@ -12,13 +12,11 @@ import {
   MsgCreateMarketRequestSchema,
   MsgSuspendMarketRequestSchema,
 } from "@morpheum/proto/market/v1/tx_pb";
-import { buildSignedTx } from "../tx-signed";
 import {
   buildSignDoc,
   type ChainIdentity,
   type SignDocResult,
 } from "../sign-doc";
-import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 
 /** The `orderbookType` of a market that trades on the CLOB. */
 export const CLOB_ORDERBOOK = "clob";
@@ -241,18 +239,16 @@ export function buildMarketCreateSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgCreateMarket(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     CREATE_MARKET_TYPE_URL,
-    msgBytes,
+    encodeMsgCreateMarket(params),
     signerAddress,
     chainType,
     signMode,
     chain,
     memo,
   );
-  return { ...signDoc, msgBytes };
 }
 
 export function buildMarketActivateSignDoc(
@@ -262,18 +258,16 @@ export function buildMarketActivateSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgActivateMarket(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     ACTIVATE_MARKET_TYPE_URL,
-    msgBytes,
+    encodeMsgActivateMarket(params),
     signerAddress,
     chainType,
     signMode,
     chain,
     memo,
   );
-  return { ...signDoc, msgBytes };
 }
 
 export function buildMarketSuspendSignDoc(
@@ -283,79 +277,14 @@ export function buildMarketSuspendSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgSuspendMarket(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     SUSPEND_MARKET_TYPE_URL,
-    msgBytes,
+    encodeMsgSuspendMarket(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildMarketCreateSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    CREATE_MARKET_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
-    memo,
-  );
-}
-
-export function buildMarketActivateSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    ACTIVATE_MARKET_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
-    memo,
-  );
-}
-
-export function buildMarketSuspendSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    SUSPEND_MARKET_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
