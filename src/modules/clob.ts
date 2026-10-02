@@ -19,6 +19,7 @@ import { keccak256 } from "ethers";
 import {
   buildSignDoc,
   type ChainIdentity,
+  type SignDocOptions,
   type SignDocResult,
 } from "../sign-doc";
 
@@ -219,6 +220,7 @@ export function buildClobPlaceOrderSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     PLACE_ORDER_TYPE_URL,
@@ -228,6 +230,7 @@ export function buildClobPlaceOrderSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -238,6 +241,7 @@ export function buildClobPlaceBatchOrdersSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     PLACE_BATCH_ORDERS_TYPE_URL,
@@ -247,6 +251,7 @@ export function buildClobPlaceBatchOrdersSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -268,6 +273,7 @@ export function buildClobModifyOrderSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     MODIFY_ORDER_TYPE_URL,
@@ -277,6 +283,7 @@ export function buildClobModifyOrderSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -330,6 +337,7 @@ export function buildClobCancelOrderSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     CANCEL_ORDER_TYPE_URL,
@@ -339,6 +347,7 @@ export function buildClobCancelOrderSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -349,6 +358,7 @@ export function buildClobProvideMarketMakerQuoteSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     PROVIDE_MARKET_MAKER_QUOTE_TYPE_URL,
@@ -358,6 +368,7 @@ export function buildClobProvideMarketMakerQuoteSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -368,6 +379,7 @@ export function buildClobCancelMarketMakerQuoteSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     CANCEL_MARKET_MAKER_QUOTE_TYPE_URL,
@@ -377,5 +389,6 @@ export function buildClobCancelMarketMakerQuoteSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }

@@ -12,8 +12,8 @@ compile it — there is currently no build step).
 
 - `src/index.ts` — the entire public surface (barrel)
 - `src/sign-doc.ts` — the single place this SDK touches signature coverage; wraps
-  `buildSignDocBytes` from the signing wasm package and carries a type-level pin that
-  `nonce` is required
+  `buildSignDocBytes` from the signing wasm package and carries type-level pins that
+  `nonce` is required and that `gasLimit` reaches the binding
 - `src/tx-signed.ts` — `buildSignedTx`, the one place a signed `Tx` is assembled, from a
   SignDoc result and its signature
 - `src/modules/` — per-module encode/SignDoc helpers; `src/ws/` — streaming client
@@ -47,6 +47,12 @@ npm test                             # runtime gate — loads the real signing w
   reads only the **last** overload, so a reintroduced duplicate declaration upstream is
   invisible from here. The authoritative pin lives in the signing repo; if types look
   wrong, fix there, not with a local override.
+- **The gas-limit rules live in signing, not here.** `SignDocOptions.gasLimit` is passed
+  to `buildSignDocBytes` as given, by `buildSignDoc` and by every module `build*SignDoc`
+  builder: absent declares the signing package's default, and the signing package alone
+  refuses an invalid value. Never default, clamp or validate it locally; a second rule
+  here is a second rule to drift. `test/gas-limit.test.ts` reads the declaration back out
+  of every builder's signed preimage and fails on a builder that is not in its table.
 - `@bufbuild/protobuf` must resolve to a single version with `../morpheum-proto/ts` —
   check lockfiles when generated types disagree.
 - Keep the public surface exported from `src/index.ts` only; no deep-path imports in docs

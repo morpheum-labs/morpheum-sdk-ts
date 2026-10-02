@@ -15,6 +15,7 @@ import {
 import {
   buildSignDoc,
   type ChainIdentity,
+  type SignDocOptions,
   type SignDocResult,
 } from "../sign-doc";
 
@@ -239,6 +240,7 @@ export function buildMarketCreateSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     CREATE_MARKET_TYPE_URL,
@@ -248,6 +250,7 @@ export function buildMarketCreateSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -258,6 +261,7 @@ export function buildMarketActivateSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     ACTIVATE_MARKET_TYPE_URL,
@@ -267,6 +271,7 @@ export function buildMarketActivateSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -277,6 +282,7 @@ export function buildMarketSuspendSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     SUSPEND_MARKET_TYPE_URL,
@@ -286,5 +292,6 @@ export function buildMarketSuspendSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }

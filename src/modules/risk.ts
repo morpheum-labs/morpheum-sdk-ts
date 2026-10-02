@@ -12,6 +12,7 @@ import { MsgTriggerLiquidationSchema } from "@morpheum/proto/risk/v1/tx_pb";
 import {
   buildSignDoc,
   type ChainIdentity,
+  type SignDocOptions,
   type SignDocResult,
 } from "../sign-doc";
 
@@ -43,6 +44,7 @@ export function buildRiskTriggerLiquidationSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     TRIGGER_LIQUIDATION_TYPE_URL,
@@ -52,5 +54,6 @@ export function buildRiskTriggerLiquidationSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
