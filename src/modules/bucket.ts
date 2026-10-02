@@ -9,13 +9,11 @@ import {
   MsgTransferBetweenBucketsRequestSchema,
   MsgTransferToBankRequestSchema,
 } from "@morpheum/proto/bucket/v1/tx_pb";
-import { buildSignedTx } from "../tx-signed";
 import {
   buildSignDoc,
   type ChainIdentity,
   type SignDocResult,
 } from "../sign-doc";
-import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
 
 
 export interface BucketCreateParams {
@@ -102,18 +100,16 @@ export function buildBucketCreateSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgCreateBucket(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgCreateBucketRequest`,
-    msgBytes,
+    encodeMsgCreateBucket(params),
     signerAddress,
     chainType,
     signMode,
     chain,
     memo,
   );
-  return { ...signDoc, msgBytes };
 }
 
 export function buildBucketTransferSignDoc(
@@ -123,18 +119,16 @@ export function buildBucketTransferSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgTransferBetweenBuckets(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgTransferBetweenBucketsRequest`,
-    msgBytes,
+    encodeMsgTransferBetweenBuckets(params),
     signerAddress,
     chainType,
     signMode,
     chain,
     memo,
   );
-  return { ...signDoc, msgBytes };
 }
 
 export function buildBucketTransferToBankSignDoc(
@@ -144,79 +138,14 @@ export function buildBucketTransferToBankSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgTransferToBank(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgTransferToBankRequest`,
-    msgBytes,
+    encodeMsgTransferToBank(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildBucketCreateSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    `${BUCKET_TX_PREFIX}MsgCreateBucketRequest`,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
-    memo,
-  );
-}
-
-export function buildBucketTransferSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    `${BUCKET_TX_PREFIX}MsgTransferBetweenBucketsRequest`,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
-    memo,
-  );
-}
-
-export function buildBucketTransferToBankSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    `${BUCKET_TX_PREFIX}MsgTransferToBankRequest`,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
@@ -228,37 +157,14 @@ export function buildBucketSetLeverageSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgSetLeverage(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgSetLeverage`,
-    msgBytes,
+    encodeMsgSetLeverage(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildBucketSetLeverageSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    `${BUCKET_TX_PREFIX}MsgSetLeverage`,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }

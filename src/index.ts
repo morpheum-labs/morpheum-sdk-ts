@@ -18,7 +18,8 @@ export {
   type SignDocResult,
 } from "./sign-doc";
 
-// Tx assembly for gRPC submission
+// Tx assembly for gRPC submission, from the encodings a SignDoc builder
+// returned — the only way this SDK assembles a signed transaction.
 export { buildSignedTx } from "./tx-signed";
 
 // Module-specific builders
@@ -35,10 +36,6 @@ export {
   buildBucketTransferSignDoc,
   buildBucketTransferToBankSignDoc,
   buildBucketSetLeverageSignDoc,
-  buildBucketCreateSignedTx,
-  buildBucketTransferSignedTx,
-  buildBucketTransferToBankSignedTx,
-  buildBucketSetLeverageSignedTx,
 } from "./modules/bucket";
 
 export {
@@ -51,11 +48,8 @@ export {
   encodeMsgCreateMarket,
   encodeMsgSuspendMarket,
   buildMarketActivateSignDoc,
-  buildMarketActivateSignedTx,
   buildMarketCreateSignDoc,
-  buildMarketCreateSignedTx,
   buildMarketSuspendSignDoc,
-  buildMarketSuspendSignedTx,
 } from "./modules/market";
 
 export {
@@ -73,17 +67,11 @@ export {
   encodeMsgProvideMarketMakerQuote,
   encodeMsgCancelMarketMakerQuote,
   buildClobPlaceBatchOrdersSignDoc,
-  buildClobPlaceBatchOrdersSignedTx,
   buildClobPlaceOrderSignDoc,
-  buildClobPlaceOrderSignedTx,
   buildClobModifyOrderSignDoc,
-  buildClobModifyOrderSignedTx,
   buildClobCancelOrderSignDoc,
-  buildClobCancelOrderSignedTx,
   buildClobProvideMarketMakerQuoteSignDoc,
-  buildClobProvideMarketMakerQuoteSignedTx,
   buildClobCancelMarketMakerQuoteSignDoc,
-  buildClobCancelMarketMakerQuoteSignedTx,
 } from "./modules/clob";
 
 export {
@@ -92,16 +80,13 @@ export {
   encodeMsgClosePosition,
   encodeMsgUpdatePositionLeverage,
   buildPositionCloseSignDoc,
-  buildPositionCloseSignedTx,
   buildPositionUpdateLeverageSignDoc,
-  buildPositionUpdateLeverageSignedTx,
 } from "./modules/position";
 
 export {
   type RiskTriggerLiquidationParams,
   encodeMsgTriggerLiquidation,
   buildRiskTriggerLiquidationSignDoc,
-  buildRiskTriggerLiquidationSignedTx,
 } from "./modules/risk";
 
 // gRPC client

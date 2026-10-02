@@ -14,21 +14,35 @@ compile it — there is currently no build step).
 - `src/sign-doc.ts` — the single place this SDK touches signature coverage; wraps
   `buildSignDocBytes` from the signing wasm package and carries a type-level pin that
   `nonce` is required
-- `src/modules/` — per-module encode/build helpers; `src/ws/` — streaming client
+- `src/tx-signed.ts` — `buildSignedTx`, the one place a signed `Tx` is assembled, from a
+  SignDoc result and its signature
+- `src/modules/` — per-module encode/SignDoc helpers; `src/ws/` — streaming client
 - `src/grpc-client.ts` — Connect **node** transport (native gRPC/h2) — this SDK is
   Node-side; it cannot run in a browser as-is
+- `test/` — `node:test` suites run through `tsx`; type-checked by the same `tsc` gate
+  (`tsconfig.json` includes `test/`), never published (`files` is `src` only)
 
 ## Commands `[host]` (node/npm are host-only)
 
 ```bash
 npm install
-npx tsc --noEmit -p tsconfig.json    # THE gate — there is no test script or CI yet
+npx tsc --noEmit -p tsconfig.json    # type gate — covers src/ and test/
+npm test                             # runtime gate — loads the real signing wasm package
 ```
 
 ## Invariants
 
 - **Never re-derive signing bytes locally.** All SignDoc byte construction goes through
   the signing wasm package; this repo adds types and ergonomics only.
+- **A signed `Tx` carries the encodings the signature covers.** `buildSignedTx` decodes
+  `bodyBytes`, `authInfoBytes` and `nonce` from the SignDoc result; never rebuild a
+  `TxBody` or `AuthInfo` from parts for submission — it drops every field the signer
+  bound that the rebuild does not set. The `_SentTxIsTheSignedBytes` type pin keeps those
+  encodings a required input; it cannot see whether they are actually used, and like the
+  nonce pin it reads only the **last** overload, so a parts-based overload declared above
+  the SignDoc one passes unseen. `test/tx-signed.test.ts` is what checks use: the
+  assembled `Tx` must re-encode to exactly the signed bytes, including fields this SDK
+  never sets and fields its schema does not know.
 - The `nonce`-required type pin here is belt-and-braces, not the guard: `Parameters<T>`
   reads only the **last** overload, so a reintroduced duplicate declaration upstream is
   invisible from here. The authoritative pin lives in the signing repo; if types look
@@ -58,6 +72,9 @@ npx tsc --noEmit -p tsconfig.json    # THE gate — there is no test script or C
 
 ## Verification
 
-- `npx tsc --noEmit` is the only gate — run it after every change, and after any rebuild
-  of the signing `pkg-node` or proto `ts/` packages. There is no CI and no test runner
-  yet; say so plainly in any PR rather than implying a suite ran.
+- Run both gates — `npx tsc --noEmit` and `npm test` — after every change, and after any
+  rebuild of the signing `pkg-node` or proto `ts/` packages. The tests execute the
+  `pkg-node` on disk, not signing `main`: a stale build gives a stale result.
+- There is no CI for this repo yet: the signing `pkg-node` dependency is a gitignored
+  `wasm-pack` build output, so a CI job would first have to build it from source. Say
+  plainly in any PR which gates ran locally rather than implying CI did.
