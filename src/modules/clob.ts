@@ -1,7 +1,7 @@
 /**
  * CLOB module — typed transaction builders for PlaceOrder and ModifyOrder.
  */
-import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
+import { create, toBinary } from "@bufbuild/protobuf";
 import {
   MsgCancelMarketMakerQuoteRequestSchema,
   MsgCancelOrderRequestSchema,
@@ -11,19 +11,11 @@ import {
   MsgProvideMarketMakerQuoteRequestSchema,
 } from "@morpheum/proto/clob/v1/tx_pb";
 import {
-  AuthInfoSchema,
-  NonceSchema,
-  TxBodySchema,
-  TxSchema,
-  type Tx,
-} from "@morpheum/proto/tx/v1/tx_pb";
-import {
   DurationSchema,
   TimestampSchema,
   type Duration,
 } from "@bufbuild/protobuf/wkt";
 import { keccak256 } from "ethers";
-import { buildSignedTx } from "../tx-signed";
 import {
   buildSignDoc,
   type ChainIdentity,
@@ -227,37 +219,14 @@ export function buildClobPlaceOrderSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgPlaceOrder(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     PLACE_ORDER_TYPE_URL,
-    msgBytes,
+    encodeMsgPlaceOrder(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildClobPlaceOrderSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    PLACE_ORDER_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
@@ -269,51 +238,14 @@ export function buildClobPlaceBatchOrdersSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgPlaceBatchOrders(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     PLACE_BATCH_ORDERS_TYPE_URL,
-    msgBytes,
+    encodeMsgPlaceBatchOrders(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildClobPlaceBatchOrdersSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-  bodyBytes?: Uint8Array,
-  authInfoBytes?: Uint8Array,
-): Tx {
-  // Fast path: reuse the exact body/auth bytes that were signed rather than
-  // re-encoding them from parts. The nonce is threaded through for the same
-  // reason — it must be the one the signature covered, not a fresh one minted
-  // here.
-  if (bodyBytes && authInfoBytes) {
-    return create(TxSchema, {
-      body: fromBinary(TxBodySchema, bodyBytes),
-      authInfo: fromBinary(AuthInfoSchema, authInfoBytes),
-      signatures: [signature],
-      nonce: fromBinary(NonceSchema, nonce),
-    });
-  }
-  return buildSignedTx(
-    PLACE_BATCH_ORDERS_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
@@ -336,37 +268,14 @@ export function buildClobModifyOrderSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgModifyOrder(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     MODIFY_ORDER_TYPE_URL,
-    msgBytes,
+    encodeMsgModifyOrder(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildClobModifyOrderSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    MODIFY_ORDER_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
@@ -421,37 +330,14 @@ export function buildClobCancelOrderSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgCancelOrder(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     CANCEL_ORDER_TYPE_URL,
-    msgBytes,
+    encodeMsgCancelOrder(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildClobCancelOrderSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    CANCEL_ORDER_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
@@ -463,37 +349,14 @@ export function buildClobProvideMarketMakerQuoteSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgProvideMarketMakerQuote(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     PROVIDE_MARKET_MAKER_QUOTE_TYPE_URL,
-    msgBytes,
+    encodeMsgProvideMarketMakerQuote(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildClobProvideMarketMakerQuoteSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    PROVIDE_MARKET_MAKER_QUOTE_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
@@ -505,37 +368,14 @@ export function buildClobCancelMarketMakerQuoteSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgCancelMarketMakerQuote(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     CANCEL_MARKET_MAKER_QUOTE_TYPE_URL,
-    msgBytes,
+    encodeMsgCancelMarketMakerQuote(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildClobCancelMarketMakerQuoteSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    CANCEL_MARKET_MAKER_QUOTE_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }

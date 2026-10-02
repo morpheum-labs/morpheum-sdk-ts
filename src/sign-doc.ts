@@ -13,9 +13,7 @@
 import { create, toBinary } from "@bufbuild/protobuf";
 import { NonceSchema, type Nonce } from "@morpheum/proto/tx/v1/tx_pb";
 import { buildSignDocBytes } from "@morpheum/signing-node";
-
-/** Compile-time assertion helper: instantiating with `false` is a type error. */
-type Assert<T extends true> = T;
+import type { Assert } from "./utils/type-assert";
 
 type SignDocBytesRequest = Parameters<typeof buildSignDocBytes>[0];
 
@@ -58,9 +56,10 @@ type _NonceBindingIsMandatory = Assert<
  * A canonical SignDoc together with everything needed to assemble the matching
  * transaction.
  *
- * `nonce` is the encoded {@link Nonce} the preimage actually bound. Pass it
- * straight to the signed-transaction builders: it is the only nonce that will
- * verify, because it is the one the signature covers.
+ * `nonce` is the encoded {@link Nonce} the preimage actually bound, and
+ * `bodyBytes` / `authInfoBytes` are the encodings the signature covers. Pass
+ * the result straight to `buildSignedTx`: these are the only values that will
+ * verify.
  */
 export interface SignDocResult {
   signDocHash: string;
@@ -132,8 +131,9 @@ export interface SignDocOptions {
 /**
  * Builds the canonical SignDoc bytes for a single-message transaction.
  *
- * The returned `nonce` is bound into the preimage, so the caller must stamp
- * exactly that value onto `Tx.nonce`.
+ * Sign the SignDoc, then assemble the transaction with `buildSignedTx` from
+ * this result and that signature: it ships the body, auth info and nonce
+ * exactly as they were bound here.
  */
 export function buildSignDoc(
   typeUrl: string,

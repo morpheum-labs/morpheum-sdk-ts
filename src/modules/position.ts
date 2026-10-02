@@ -6,8 +6,6 @@ import {
   MsgClosePositionSchema,
   MsgUpdatePositionLeverageSchema,
 } from "@morpheum/proto/position/v1/tx_pb";
-import type { Tx } from "@morpheum/proto/tx/v1/tx_pb";
-import { buildSignedTx } from "../tx-signed";
 import {
   buildSignDoc,
   type ChainIdentity,
@@ -65,18 +63,16 @@ export function buildPositionCloseSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgClosePosition(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     CLOSE_POSITION_TYPE_URL,
-    msgBytes,
+    encodeMsgClosePosition(params),
     signerAddress,
     chainType,
     signMode,
     chain,
     memo,
   );
-  return { ...signDoc, msgBytes };
 }
 
 export function buildPositionUpdateLeverageSignDoc(
@@ -86,58 +82,14 @@ export function buildPositionUpdateLeverageSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
-): SignDocResult & { msgBytes: Uint8Array } {
-  const msgBytes = encodeMsgUpdatePositionLeverage(params);
-  const signDoc = buildSignDoc(
+): SignDocResult {
+  return buildSignDoc(
     UPDATE_POSITION_LEVERAGE_TYPE_URL,
-    msgBytes,
+    encodeMsgUpdatePositionLeverage(params),
     signerAddress,
     chainType,
     signMode,
     chain,
-    memo,
-  );
-  return { ...signDoc, msgBytes };
-}
-
-export function buildPositionCloseSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    CLOSE_POSITION_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
-    memo,
-  );
-}
-
-export function buildPositionUpdateLeverageSignedTx(
-  msgBytes: Uint8Array,
-  signerAddress: string,
-  signature: Uint8Array,
-  chainType: number,
-  signMode: number,
-  nonce: Uint8Array,
-  memo: string = "",
-): Tx {
-  return buildSignedTx(
-    UPDATE_POSITION_LEVERAGE_TYPE_URL,
-    msgBytes,
-    signerAddress,
-    signature,
-    chainType,
-    signMode,
-    nonce,
     memo,
   );
 }
