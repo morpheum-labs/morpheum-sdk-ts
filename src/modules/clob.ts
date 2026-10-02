@@ -297,7 +297,7 @@ export function buildClobPlaceBatchOrdersSignedTx(
   // Fast path: reuse the exact body/auth bytes that were signed rather than
   // re-encoding them from parts. The nonce is threaded through for the same
   // reason — it must be the one the signature covered, not a fresh one minted
-  // here, which is what this branch used to do.
+  // here.
   if (bodyBytes && authInfoBytes) {
     return create(TxSchema, {
       body: fromBinary(TxBodySchema, bodyBytes),
