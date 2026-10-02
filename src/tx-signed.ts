@@ -32,9 +32,8 @@ function buildSignerKeyInfo(signerAddress: string, chainType: number) {
  *
  * `nonce` must be the `nonce` returned by {@link buildSignDoc} — the encoding
  * the signature actually covered. This parameter is required, and the value is
- * decoded rather than reconstructed, because the alternative is what this SDK
- * used to do: mint a fresh nonce here that no signature covered, leaving the
- * replay-protection field rewritable by any observer.
+ * decoded rather than reconstructed, so the nonce the transaction carries is
+ * always the one its signature covers.
  */
 export function buildSignedTx(
   typeUrl: string,
