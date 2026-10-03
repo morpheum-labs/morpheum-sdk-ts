@@ -9,6 +9,7 @@ import {
 import {
   buildSignDoc,
   type ChainIdentity,
+  type SignDocOptions,
   type SignDocResult,
 } from "../sign-doc";
 
@@ -63,6 +64,7 @@ export function buildPositionCloseSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     CLOSE_POSITION_TYPE_URL,
@@ -72,6 +74,7 @@ export function buildPositionCloseSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -82,6 +85,7 @@ export function buildPositionUpdateLeverageSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     UPDATE_POSITION_LEVERAGE_TYPE_URL,
@@ -91,5 +95,6 @@ export function buildPositionUpdateLeverageSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }

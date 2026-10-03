@@ -119,14 +119,51 @@ export interface ChainIdentity {
   genesisHash?: Uint8Array;
 }
 
-/** Optional bindings a caller can add to the signing preimage. */
+/**
+ * Optional bindings a caller can add to the signing preimage.
+ *
+ * Accepted by {@link buildSignDoc} and by every module `build*SignDoc`
+ * builder, which pass it through unchanged.
+ */
 export interface SignDocOptions {
   /**
    * The nonce to bind. Defaults to {@link newNonce}. Whatever is bound here is
    * returned in {@link SignDocResult.nonce} and must be the value sent.
    */
   nonce?: Nonce;
+  /**
+   * The gas limit to declare in `AuthInfo.gas_limit`, which the signature
+   * covers.
+   *
+   * Omitted, the transaction declares the signing package's default, which is
+   * sized for native-module messages with a fixed cost. A contract (VM)
+   * message, or one whose cost grows with the work it does, can need more and
+   * must declare it here. Every declared unit is reserved against the block's
+   * gas budget whether used or not, so declare what the transaction needs.
+   *
+   * Passed to the signing package as given and checked only there: a value
+   * below 1 or above the chain's per-transaction gas budget throws, and is
+   * never replaced by the default.
+   */
+  gasLimit?: bigint;
 }
+
+/**
+ * Pins that **a declared gas limit reaches the preimage**: the shipped
+ * `buildSignDocBytes` request declares `gasLimit`, and accepts every value
+ * {@link SignDocOptions.gasLimit} can hold, absent included.
+ *
+ * The binding ignores request properties it does not declare, so against a
+ * signing package without the field a caller's declaration would be dropped
+ * without an error. The object literal in {@link buildSignDoc} is
+ * excess-property checked only while it stays a literal; this pin holds
+ * however the request is assembled. A failure is a `tsc --noEmit` error.
+ */
+type _GasLimitReachesTheBinding = Assert<
+  SignDocOptions["gasLimit"] extends SignDocBytesRequest["gasLimit"]
+    ? true
+    : false
+>;
 
 /**
  * Builds the canonical SignDoc bytes for a single-message transaction.
@@ -134,6 +171,9 @@ export interface SignDocOptions {
  * Sign the SignDoc, then assemble the transaction with `buildSignedTx` from
  * this result and that signature: it ships the body, auth info and nonce
  * exactly as they were bound here.
+ *
+ * @throws The signing package's refusal, unchanged, when `options.gasLimit`
+ *   is not a valid declaration (see {@link SignDocOptions.gasLimit}).
  */
 export function buildSignDoc(
   typeUrl: string,
@@ -156,6 +196,7 @@ export function buildSignDoc(
     memo: memo || undefined,
     genesisHash: chain.genesisHash,
     nonce: toBinary(NonceSchema, nonce),
+    gasLimit: options.gasLimit,
   });
   return {
     signDocHash: result.signDocHash,

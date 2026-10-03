@@ -12,6 +12,7 @@ import {
 import {
   buildSignDoc,
   type ChainIdentity,
+  type SignDocOptions,
   type SignDocResult,
 } from "../sign-doc";
 
@@ -100,6 +101,7 @@ export function buildBucketCreateSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgCreateBucketRequest`,
@@ -109,6 +111,7 @@ export function buildBucketCreateSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -119,6 +122,7 @@ export function buildBucketTransferSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgTransferBetweenBucketsRequest`,
@@ -128,6 +132,7 @@ export function buildBucketTransferSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -138,6 +143,7 @@ export function buildBucketTransferToBankSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgTransferToBankRequest`,
@@ -147,6 +153,7 @@ export function buildBucketTransferToBankSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
 
@@ -157,6 +164,7 @@ export function buildBucketSetLeverageSignDoc(
   signMode: number,
   chain: ChainIdentity,
   memo: string = "",
+  options: SignDocOptions = {},
 ): SignDocResult {
   return buildSignDoc(
     `${BUCKET_TX_PREFIX}MsgSetLeverage`,
@@ -166,5 +174,6 @@ export function buildBucketSetLeverageSignDoc(
     signMode,
     chain,
     memo,
+    options,
   );
 }
