@@ -1,9 +1,6 @@
 /**
  * JSON wire protocol for the Morpheum multiplex WebSocket endpoint.
  *
- * Mirrors the framing defined in
- * mormcore/crates/node/src/services/ws/protocol.rs.
- *
  * Client sends `auth`, `subscribe`, `unsubscribe` messages; server responds
  * with `auth`, `subscriptionResponse`, `error`, or typed data frames.
  */

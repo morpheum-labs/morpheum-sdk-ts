@@ -2,19 +2,13 @@
  * Canonical SignDoc construction — the single place this SDK decides what a
  * transaction's signature covers.
  *
- * Every module builder routes through {@link buildSignDoc}. It used to be a
- * `wasmSignDoc` helper copy-pasted into each module, and all five copies made
- * the same mistake: they called the ten-parameter `buildSignDocBytes` with
- * eight arguments, so `genesisHash` and `nonce` arrived `undefined`. The
- * signature covered a **nonce-less** preimage, and a fresh nonce was then
- * fabricated at assembly time — shipping a replay-protection field that no
- * signature covered. An observer could rewrite it and resubmit: the signature
- * still verified (the nonce was outside the preimage), the deduplication hash
- * changed, and the chain admitted it as a new transaction.
- *
- * One helper, one call site, and a nonce that travels with the preimage it was
- * bound into is what makes that divergence unrepresentable rather than merely
- * discouraged.
+ * Every module builder routes through {@link buildSignDoc}, so there is one
+ * call into the signing package rather than a copy per module. The nonce the
+ * signature covers is returned alongside the preimage it was bound into, and
+ * {@link buildSignedTx} requires that same value: the nonce a transaction
+ * carries is always the one its signature covers. One helper, one call site,
+ * and a nonce that travels with its preimage is what makes a signed-vs-sent
+ * divergence unrepresentable rather than merely discouraged.
  */
 import { create, toBinary } from "@bufbuild/protobuf";
 import { NonceSchema, type Nonce } from "@morpheum/proto/tx/v1/tx_pb";
@@ -27,18 +21,16 @@ type SignDocBytesRequest = Parameters<typeof buildSignDocBytes>[0];
  * Pins the property this module exists to guarantee: **binding a nonce is not
  * optional**.
  *
- * The original defect was that `buildSignDocBytes` took a trailing optional
- * nonce and every caller omitted it. Making it required is what turned "please
- * pass a nonce" from a convention into a compile error, and nothing else here
- * would notice that going away.
+ * A required `nonce` is what turns "please pass a nonce" from a convention
+ * into a compile error, and nothing else here would notice that going away.
  *
  * Asserted against the *shipped* declaration rather than the source that
  * produces it: `nonce` must be present on the request type and must not admit
  * `undefined`. It fires if the Rust field ever gains `#[serde(default)]` or
  * becomes `Option`, either of which would regenerate an honest declaration with
  * an optional nonce and nothing hand-written anywhere to notice. `tsc --noEmit`
- * is already a gate, so that is a red build rather than a silent downgrade to
- * unsigned replay protection.
+ * is already a gate, so that is a red build rather than a signature that
+ * silently stops covering the nonce.
  *
  * This replaces an arity check (`Parameters<...>["length"] extends 10`) that
  * the move to a named request object made meaningless — and the property is the
@@ -103,12 +95,9 @@ export function newNonce(): Nonce {
  * acceptable signing preimages from both at once — they are one fact about one
  * chain, not two independent settings, and separating them is how they drift.
  *
- * Deliberately a single object rather than two positional parameters. This
- * SDK's original defect was a ten-parameter call made with eight arguments:
- * the trailing bindings silently defaulted, and every transaction shipped a
- * nonce no signature covered. Adding another optional trailing parameter would
- * reproduce that failure mode exactly. A missing field on a named object is a
- * type error; a missing trailing argument is a security downgrade.
+ * Deliberately a single object rather than two positional parameters: a
+ * missing field on a named object is a type error, whereas a missing optional
+ * trailing argument silently defaults.
  *
  * # Trust
  *
@@ -121,13 +110,11 @@ export function newNonce(): Nonce {
 export interface ChainIdentity {
   chainId: string;
   /**
-   * The target chain's genesis hash (Phase M3), which stops a signature valid
-   * on one chain being replayed onto another that shares its `chainId`.
+   * The target chain's genesis hash, which stops a signature valid on one
+   * chain being replayed onto another that shares its `chainId`.
    *
-   * Optional while the strict genesis fork is advisory: verifiers still accept
-   * unbound signatures, placing them on the `GenesisUnbound` preimage rung.
-   * Supply it wherever it is configured — that is what moves adoption toward
-   * the point where the fork can safely activate.
+   * Optional at the type level; when omitted, the preimage binds no chain
+   * instance. Supply it wherever it is configured.
    */
   genesisHash?: Uint8Array;
 }
