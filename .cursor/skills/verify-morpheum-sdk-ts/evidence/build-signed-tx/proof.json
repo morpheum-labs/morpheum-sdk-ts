@@ -1,0 +1,19 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "build-signed-tx",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive build-signed-tx",
+  "runId": "prove-build-signed-tx",
+  "repoHead": "22e0abded6dc93c89816cf7b080ecab4fae94b1f",
+  "finishedAt": "2026-10-30T22:56:55.340Z",
+  "observations": {
+    "moduleRoundTrip": true,
+    "unknownFieldRoundTrip": true,
+    "unknownFieldNo": 7,
+    "messageTypeUrl": "/bucket.v1.MsgCreateBucketRequest",
+    "bodyByteLength": 56,
+    "authInfoByteLength": 71,
+    "nonceByteLength": 6
+  },
+  "error": ""
+}

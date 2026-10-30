@@ -1,0 +1,3 @@
+PASS build-signed-tx
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/build-signed-tx/proof.json
+evidence-sha256 b2f92a5b383697fda818486296d3aa6240e95cc8eff68af724fc768f564d8894

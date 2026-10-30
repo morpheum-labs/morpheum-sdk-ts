@@ -41,8 +41,9 @@ Launch does the following.
 wasm-pack build crates/wasm --target nodejs --out-dir pkg-node
 ```
 
-5. Run `npm install` in this repo.
-6. Import `./src/index.ts` with the local `tsx`. That load pulls in the real signing wasm.
+5. Run `npm ci --ignore-scripts` in `../morpheum-proto/ts`. Generated files import `@bufbuild/protobuf` from that package. Node and `tsc` resolve it there, not from this repo's `node_modules`.
+6. Run `npm install` in this repo.
+7. Import `./src/index.ts` with the local `tsx` and `--input-type=module`. `tsx --eval` compiles as CommonJS without that flag, so a top-level `await import` fails before the barrel loads. That load pulls in the real signing wasm.
 
 Ready is this line on stdout.
 
