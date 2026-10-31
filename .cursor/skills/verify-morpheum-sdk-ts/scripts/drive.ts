@@ -16,6 +16,7 @@ const FEATURE_IDS = [
   "clob-cancel-order",
   "clob-modify-order",
   "clob-place-batch-orders",
+  "clob-provide-mm-quote",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -104,6 +105,18 @@ const MODIFY_ORDER = {
   newPrice: "101",
   newQuantity: "2",
 };
+
+function provideMmQuote(sdk: Barrel) {
+  return {
+    provider: SIGNER,
+    poolId: "pool-1",
+    marketIndex: 0,
+    side: sdk.Side.BUY,
+    price: "100",
+    amount: "1",
+    durationSeconds: 60,
+  };
+}
 
 function placeBatch(sdk: Barrel) {
   return {
@@ -585,6 +598,52 @@ async function driveClobPlaceBatchOrders(repo: string): Promise<Record<string, u
   };
 }
 
+async function driveClobProvideMmQuote(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const quote = provideMmQuote(sdk);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgProvideMarketMakerQuoteRequestSchema } = await import("@morpheum/proto/clob/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgProvideMarketMakerQuote(quote);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgProvideMarketMakerQuoteRequestSchema, encoded);
+  assert.equal(msg.provider, quote.provider);
+  assert.equal(msg.poolId, quote.poolId);
+  assert.equal(msg.marketIndex, BigInt(quote.marketIndex));
+  assert.equal(msg.side, sdk.Side.BUY);
+  assert.equal(msg.price, quote.price);
+  assert.equal(msg.amount, quote.amount);
+  assert.ok(msg.duration);
+  assert.equal(msg.duration.seconds, BigInt(quote.durationSeconds));
+  assert.equal(msg.duration.nanos, 0);
+
+  const signDoc = sdk.buildClobProvideMarketMakerQuoteSignDoc(quote, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const quoted = body.messages[0];
+  assert.ok(quoted);
+  assert.equal(quoted.typeUrl, "/clob.v1.MsgProvideMarketMakerQuoteRequest");
+  const bodyMatchesEncoded = bytesEqual(quoted.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    provider: msg.provider,
+    poolId: msg.poolId,
+    marketIndex: msg.marketIndex.toString(),
+    side: msg.side,
+    price: msg.price,
+    amount: msg.amount,
+    durationSeconds: msg.duration.seconds.toString(),
+    typeUrl: quoted.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -675,6 +734,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "clob-cancel-order": driveClobCancelOrder,
   "clob-modify-order": driveClobModifyOrder,
   "clob-place-batch-orders": driveClobPlaceBatchOrders,
+  "clob-provide-mm-quote": driveClobProvideMmQuote,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
