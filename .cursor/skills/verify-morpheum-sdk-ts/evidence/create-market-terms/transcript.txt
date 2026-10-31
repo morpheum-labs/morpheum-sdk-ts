@@ -1,0 +1,3 @@
+PASS create-market-terms
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/create-market-terms/proof.json
+evidence-sha256 05e0be9815f2a46199d0d9cecab78ccbd4e129fe0b5b14891423491e91f60c7f
