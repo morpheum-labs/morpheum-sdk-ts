@@ -1,0 +1,21 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "position-update-leverage",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-update-leverage",
+  "runId": "position-update-leverage-d4ee",
+  "repoHead": "c738e3165be097f61dd30befc97315a09a4496e9",
+  "finishedAt": "2026-10-31T22:01:28.155Z",
+  "observations": {
+    "address": "0x1111111111111111111111111111111111111111",
+    "positionId": "3",
+    "bucketId": "7",
+    "marketIndex": "1",
+    "newLeverage": "5",
+    "msgByteLength": 55,
+    "typeUrl": "/position.v1.Msg/UpdatePositionLeverage",
+    "signDocByteLength": 229,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}
