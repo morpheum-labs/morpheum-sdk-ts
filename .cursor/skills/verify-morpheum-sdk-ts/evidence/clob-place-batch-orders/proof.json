@@ -1,0 +1,40 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "clob-place-batch-orders",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-batch-orders",
+  "runId": "clob-place-batch-orders-7f84",
+  "repoHead": "2a1468a2f7ab0b29068fbd1d7d88516623bcb637",
+  "finishedAt": "2026-10-31T20:19:13.018Z",
+  "observations": {
+    "orderCount": 2,
+    "fromAddress": "0x1111111111111111111111111111111111111111",
+    "prices": [
+      "100",
+      "101"
+    ],
+    "quantities": [
+      "1",
+      "2"
+    ],
+    "sides": [
+      1,
+      2
+    ],
+    "orderTypes": [
+      1,
+      1
+    ],
+    "firstPrice": "100",
+    "firstQuantity": "1",
+    "firstSide": 1,
+    "firstOrderType": 1,
+    "ordersHashNonEmpty": true,
+    "ordersHash": "0x83154c88fb8660376fa5240ff1ec61a77d4867db187fffb099e6ec4b45deec7e",
+    "timestampSeconds": "1793477953",
+    "typeUrl": "/clob.v1.MsgPlaceBatchOrdersRequest",
+    "signDocByteLength": 421,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

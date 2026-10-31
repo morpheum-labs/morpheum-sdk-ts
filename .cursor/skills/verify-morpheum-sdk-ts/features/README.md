@@ -37,7 +37,7 @@ The surface is a Node ESM library. There is no page, command palette, or long-li
 - [Place a CLOB order](./clob-place-order.md) — **offline / proven**. Covers `encodeMsgPlaceOrder` and `buildClobPlaceOrderSignDoc`. Evidence: `../evidence/clob-place-order/proof.json` with `result` `PASS`.
 - [Cancel a CLOB order](./clob-cancel-order.md) — **offline / proven**. Covers `encodeMsgCancelOrder` and `buildClobCancelOrderSignDoc`. Evidence: `../evidence/clob-cancel-order/proof.json` with `result` `PASS`.
 - [Amend a CLOB order](./clob-modify-order.md) — **offline / proven**. Covers `encodeMsgModifyOrder` and `buildClobModifyOrderSignDoc`. Evidence: `../evidence/clob-modify-order/proof.json` with `result` `PASS`.
-- [Place a batch of CLOB orders](./clob-place-batch-orders.md) — **offline**. Covers `encodeMsgPlaceBatchOrders` and `buildClobPlaceBatchOrdersSignDoc`. Evidence follows a passing `drive clob-place-batch-orders`.
+- [Place a batch of CLOB orders](./clob-place-batch-orders.md) — **offline / proven**. Covers `encodeMsgPlaceBatchOrders` and `buildClobPlaceBatchOrdersSignDoc`. Evidence: `../evidence/clob-place-batch-orders/proof.json` with `result` `PASS`.
 - [Query over gRPC](./grpc-query-client.md) — **needs-sentry**. Covers `MormcoreGrpcClient` against a real node. Requires `MORPHEUM_GRPC_URL`. `UNMET` is not `PASS`. Do not fake a server.
 - [Subscribe over WebSocket](./ws-stream.md) — **needs-sentry**. Covers `MorpheumWsClient` against a real stream. Requires `MORPHEUM_WS_URL`. `UNMET` is not `PASS`. Do not fake a server.
 
