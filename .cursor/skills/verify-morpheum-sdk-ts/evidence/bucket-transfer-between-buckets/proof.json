@@ -1,0 +1,20 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "bucket-transfer-between-buckets",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-transfer-between-buckets",
+  "runId": "bucket-transfer-between-buckets-ad1e",
+  "repoHead": "b77975a8257ea8401826fdca7f68cf39ae30723f",
+  "finishedAt": "2026-10-31T22:15:04.484Z",
+  "observations": {
+    "sourceBucketId": "7",
+    "targetBucketId": "9",
+    "amount": "1000",
+    "reason": "rebalance",
+    "msgByteLength": 23,
+    "typeUrl": "/bucket.v1.MsgTransferBetweenBucketsRequest",
+    "signDocByteLength": 201,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

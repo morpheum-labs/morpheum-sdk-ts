@@ -1,0 +1,19 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "bucket-set-leverage",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-set-leverage",
+  "runId": "bucket-set-leverage-ad1e",
+  "repoHead": "b77975a8257ea8401826fdca7f68cf39ae30723f",
+  "finishedAt": "2026-10-31T22:15:05.406Z",
+  "observations": {
+    "bucketId": "7",
+    "marketIndex": "1",
+    "leverage": 5,
+    "msgByteLength": 7,
+    "typeUrl": "/bucket.v1.MsgSetLeverage",
+    "signDocByteLength": 167,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

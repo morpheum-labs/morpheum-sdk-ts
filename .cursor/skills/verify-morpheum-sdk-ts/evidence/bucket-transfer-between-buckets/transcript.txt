@@ -1,0 +1,3 @@
+PASS bucket-transfer-between-buckets
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-transfer-between-buckets/proof.json
+evidence-sha256 13784a397ecd356e95acc1bbd406cc990a1c46be49d728c85f70e92e0d817070
