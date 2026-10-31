@@ -12,6 +12,7 @@ const FEATURE_IDS = [
   "build-signed-tx",
   "sign-doc-gas-limit",
   "create-market-terms",
+  "clob-place-order",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -73,6 +74,21 @@ const CREATE_BUCKET = {
   collateralAssetIndex: 0,
   initialMargin: "100",
 };
+
+const LIMIT_BUY_TERMS = {
+  fromAddress: SIGNER,
+  marketIndex: 0,
+  price: "100",
+  quantity: "1",
+};
+
+function limitBuy(sdk: Barrel) {
+  return {
+    ...LIMIT_BUY_TERMS,
+    side: sdk.Side.BUY,
+    orderType: sdk.OrderType.LIMIT,
+  };
+}
 
 function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
   return Buffer.compare(left, right) === 0;
@@ -341,6 +357,46 @@ async function driveCreateMarket(repo: string): Promise<Record<string, unknown>>
   };
 }
 
+async function driveClobPlaceOrder(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const order = limitBuy(sdk);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgPlaceOrderRequestSchema } = await import("@morpheum/proto/clob/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgPlaceOrder(order);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgPlaceOrderRequestSchema, encoded);
+  assert.equal(msg.price, order.price);
+  assert.equal(msg.quantity, order.quantity);
+  assert.equal(msg.side, sdk.Side.BUY);
+  assert.equal(msg.orderType, sdk.OrderType.LIMIT);
+  assert.equal(msg.marketIndex, BigInt(order.marketIndex));
+
+  const signDoc = sdk.buildClobPlaceOrderSignDoc(order, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const placed = body.messages[0];
+  assert.ok(placed);
+  assert.equal(placed.typeUrl, "/clob.v1.MsgPlaceOrderRequest");
+  const bodyMatchesEncoded = bytesEqual(placed.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    price: msg.price,
+    quantity: msg.quantity,
+    side: msg.side,
+    orderType: msg.orderType,
+    marketIndex: msg.marketIndex.toString(),
+    typeUrl: placed.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -427,6 +483,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "build-signed-tx": driveBuildSignedTx,
   "sign-doc-gas-limit": driveGasLimit,
   "create-market-terms": driveCreateMarket,
+  "clob-place-order": driveClobPlaceOrder,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };

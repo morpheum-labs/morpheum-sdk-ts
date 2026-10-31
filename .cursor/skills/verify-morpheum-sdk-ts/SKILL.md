@@ -4,7 +4,8 @@ description: >-
   Launch, doctor, drive, and prove @morpheum/sdk, the Morpheum TypeScript
   library (Node ESM, no UI). Use when verifying this checkout the way a
   consumer imports src/index.ts, or when asked to drive SignDoc builders,
-  buildSignedTx, market creation terms, MormcoreGrpcClient, or MorpheumWsClient.
+  buildSignedTx, market creation terms, CLOB place-order, MormcoreGrpcClient,
+  or MorpheumWsClient.
 ---
 
 # Verify morpheum-sdk-ts
@@ -85,7 +86,7 @@ bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh features
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive <feature>
 ```
 
-Feature ids are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `grpc-query-client`, and `ws-stream`. The matching file in `features/` is the recipe. Run that file's checks. Do not mark a feature passed because a different feature passed.
+Feature ids are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `grpc-query-client`, and `ws-stream`. The matching file in `features/` is the recipe. Run that file's checks. Do not mark a feature passed because a different feature passed.
 
 `grpc-query-client` reads `MORPHEUM_GRPC_URL`. `ws-stream` reads `MORPHEUM_WS_URL`. When the variable is unset the drive exits 2 and writes `"result": "UNMET"`. That is not a pass. Do not point those drives at a stand-in server to make them pass.
 
@@ -102,11 +103,11 @@ A drive writes two files that cleanup must leave in place.
 
 `proof.json` records `feature`, `result`, `command`, `runId`, `repoHead`, `finishedAt`, and `observations`. A feature is proved only when `result` is `PASS`. `FAIL` and `UNMET` are not passes.
 
-The proof has to show the call and the resulting state. For `build-signed-tx`, that state is the re-encoded `bodyBytes`, `authInfoBytes`, and `nonce` matching the bytes the signature covers, including a field the schema does not know. For `sign-doc-gas-limit`, it is the gas limit decoded from the SignDoc preimage. For `create-market-terms`, it is the decoded `MsgCreateMarketRequest` plus the thrown errors. For the network features, it is the RPC or subscription result from the URL you set, not a constructed object.
+The proof has to show the call and the resulting state. For `build-signed-tx`, that state is the re-encoded `bodyBytes`, `authInfoBytes`, and `nonce` matching the bytes the signature covers, including a field the schema does not know. For `sign-doc-gas-limit`, it is the gas limit decoded from the SignDoc preimage. For `create-market-terms`, it is the decoded `MsgCreateMarketRequest` plus the thrown errors. For `clob-place-order`, it is the decoded `MsgPlaceOrderRequest` (price, quantity, side, orderType, marketIndex) and a SignDoc whose body message type URL is `/clob.v1.MsgPlaceOrderRequest`. For the network features, it is the RPC or subscription result from the URL you set, not a constructed object.
 
 Stdout of a passing drive includes a `PASS <feature>` line and `evidence-sha256` of `proof.json`.
 
-`features/README.md` is the scan. `build-signed-tx`, `sign-doc-gas-limit`, and `create-market-terms` are offline / proven. `grpc-query-client` and `ws-stream` are needs-sentry.
+`features/README.md` is the scan. `build-signed-tx`, `sign-doc-gas-limit`, and `create-market-terms` are offline / proven. `clob-place-order` is offline. `grpc-query-client` and `ws-stream` are needs-sentry.
 
 ## Cleanup
 
