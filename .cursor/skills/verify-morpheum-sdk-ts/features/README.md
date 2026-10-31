@@ -42,7 +42,7 @@ The surface is a Node ESM library. There is no page, command palette, or long-li
 - [Cancel a market-maker quote](./clob-cancel-mm-quote.md) — **offline / proven**. Covers `encodeMsgCancelMarketMakerQuote` and `buildClobCancelMarketMakerQuoteSignDoc`. Evidence: `../evidence/clob-cancel-mm-quote/proof.json` with `result` `PASS`.
 - [Create a bucket](./bucket-create.md) — **offline / proven**. Covers `encodeMsgCreateBucket` and `buildBucketCreateSignDoc`. `build-signed-tx` still owns Tx assembly. Evidence: `../evidence/bucket-create/proof.json` with `result` `PASS`.
 - [Close a position](./position-close.md) — **offline / proven**. Covers `encodeMsgClosePosition` and `buildPositionCloseSignDoc`. Evidence: `../evidence/position-close/proof.json` with `result` `PASS`.
-- [Trigger a liquidation](./risk-trigger-liquidation.md) — **offline**. Covers `encodeMsgTriggerLiquidation` and `buildRiskTriggerLiquidationSignDoc`. Evidence follows `drive risk-trigger-liquidation`.
+- [Trigger a liquidation](./risk-trigger-liquidation.md) — **offline / proven**. Covers `encodeMsgTriggerLiquidation` and `buildRiskTriggerLiquidationSignDoc`. Evidence: `../evidence/risk-trigger-liquidation/proof.json` with `result` `PASS`.
 - [Query over gRPC](./grpc-query-client.md) — **needs-sentry**. Covers `MormcoreGrpcClient` against a real node. Requires `MORPHEUM_GRPC_URL`. `UNMET` is not `PASS`. Do not fake a server.
 - [Subscribe over WebSocket](./ws-stream.md) — **needs-sentry**. Covers `MorpheumWsClient` against a real stream. Requires `MORPHEUM_WS_URL`. `UNMET` is not `PASS`. Do not fake a server.
 
