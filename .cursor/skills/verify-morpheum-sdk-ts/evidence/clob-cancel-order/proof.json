@@ -1,0 +1,18 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "clob-cancel-order",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-order",
+  "runId": "clob-cancel-order-e4e6",
+  "repoHead": "39b775d9966569a8efd1d9c5e7919d84ff2db187",
+  "finishedAt": "2026-10-31T19:58:38.688Z",
+  "observations": {
+    "orderId": "order-1",
+    "address": "0x1111111111111111111111111111111111111111",
+    "symbol": "",
+    "typeUrl": "/clob.v1.MsgCancelOrderRequest",
+    "signDocByteLength": 218,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

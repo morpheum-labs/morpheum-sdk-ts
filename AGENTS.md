@@ -8,7 +8,7 @@ That path is proven offline. Run `bash .cursor/skills/verify-morpheum-sdk-ts/scr
 
 After create-market, the next HFT step is place order via `encodeMsgPlaceOrder` / `buildClobPlaceOrderSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-order`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-place-order/proof.json` with `"result": "PASS"`.
 
-After place order, cancel via `encodeMsgCancelOrder` / `buildClobCancelOrderSignDoc`. Drive it offline with `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-order`. Evidence lands at `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-cancel-order/proof.json` when that drive passes.
+After place order, cancel via `encodeMsgCancelOrder` / `buildClobCancelOrderSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-order`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-cancel-order/proof.json` with `"result": "PASS"`.
 
 Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-cancel-order`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, and `clob-place-order`.
 

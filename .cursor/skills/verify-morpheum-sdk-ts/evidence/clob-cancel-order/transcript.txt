@@ -1,0 +1,3 @@
+PASS clob-cancel-order
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-cancel-order/proof.json
+evidence-sha256 f51b944985798e8c53381459bacbba62485c8e7da64838f1fc829964c04baf41
