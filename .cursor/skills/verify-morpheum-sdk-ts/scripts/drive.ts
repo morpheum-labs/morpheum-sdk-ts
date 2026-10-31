@@ -15,6 +15,7 @@ const FEATURE_IDS = [
   "clob-place-order",
   "clob-cancel-order",
   "clob-modify-order",
+  "clob-place-batch-orders",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -103,6 +104,35 @@ const MODIFY_ORDER = {
   newPrice: "101",
   newQuantity: "2",
 };
+
+function placeBatch(sdk: Barrel) {
+  return {
+    fromAddress: SIGNER,
+    orders: [
+      {
+        marketIndex: 0,
+        price: "100",
+        quantity: "1",
+        side: sdk.Side.BUY,
+        orderType: sdk.OrderType.LIMIT,
+      },
+      {
+        marketIndex: 0,
+        price: "101",
+        quantity: "2",
+        side: sdk.Side.SELL,
+        orderType: sdk.OrderType.LIMIT,
+      },
+    ],
+  };
+}
+
+async function leaveRoomInThisSecond(marginMs: number): Promise<void> {
+  const remain = 1000 - (Date.now() % 1000);
+  if (remain < marginMs) {
+    await new Promise((resolve) => setTimeout(resolve, remain + 5));
+  }
+}
 
 function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
   return Buffer.compare(left, right) === 0;
@@ -485,6 +515,76 @@ async function driveClobModifyOrder(repo: string): Promise<Record<string, unknow
   };
 }
 
+async function driveClobPlaceBatchOrders(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const batch = placeBatch(sdk);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgPlaceBatchOrdersRequestSchema } = await import("@morpheum/proto/clob/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  // encode and SignDoc each read Date.now(). Stay clear of the second
+  // boundary so those two calls can share one timestamp. The clock stays real.
+  await leaveRoomInThisSecond(200);
+  const encoded = sdk.encodeMsgPlaceBatchOrders(batch);
+  const signDoc = sdk.buildClobPlaceBatchOrdersSignDoc(batch, ...signArgs(sdk));
+  assert.ok(encoded.byteLength > 0);
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+
+  const msg = fromBinary(MsgPlaceBatchOrdersRequestSchema, encoded);
+  assert.equal(msg.fromAddress, batch.fromAddress);
+  assert.equal(msg.orders.length, batch.orders.length);
+  assert.ok(msg.ordersHash.length > 0);
+  const ordersHashNonEmpty = msg.ordersHash.length > 0;
+  for (let i = 0; i < batch.orders.length; i++) {
+    const expected = batch.orders[i];
+    const order = msg.orders[i];
+    assert.ok(expected && order);
+    assert.equal(order.address, batch.fromAddress);
+    assert.equal(order.marketIndex, BigInt(expected.marketIndex));
+    assert.equal(order.price, expected.price);
+    assert.equal(order.quantity, expected.quantity);
+    assert.equal(order.side, expected.side);
+    assert.equal(order.orderType, expected.orderType);
+    assert.ok(order.timestamp);
+    assert.ok(order.timestamp.seconds > 0n);
+    assert.equal(order.timestamp.nanos, 0);
+  }
+  const first = msg.orders[0];
+  assert.ok(first?.timestamp);
+  for (const order of msg.orders) {
+    assert.equal(order.timestamp?.seconds, first.timestamp.seconds);
+  }
+
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const placed = body.messages[0];
+  assert.ok(placed);
+  assert.equal(placed.typeUrl, "/clob.v1.MsgPlaceBatchOrdersRequest");
+  const bodyMatchesEncoded = bytesEqual(placed.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    orderCount: msg.orders.length,
+    fromAddress: msg.fromAddress,
+    prices: msg.orders.map((order) => order.price),
+    quantities: msg.orders.map((order) => order.quantity),
+    sides: msg.orders.map((order) => order.side),
+    orderTypes: msg.orders.map((order) => order.orderType),
+    firstPrice: first.price,
+    firstQuantity: first.quantity,
+    firstSide: first.side,
+    firstOrderType: first.orderType,
+    ordersHashNonEmpty,
+    ordersHash: msg.ordersHash,
+    timestampSeconds: first.timestamp.seconds.toString(),
+    typeUrl: placed.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -574,6 +674,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "clob-place-order": driveClobPlaceOrder,
   "clob-cancel-order": driveClobCancelOrder,
   "clob-modify-order": driveClobModifyOrder,
+  "clob-place-batch-orders": driveClobPlaceBatchOrders,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
