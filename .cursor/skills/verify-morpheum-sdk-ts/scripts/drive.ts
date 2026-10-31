@@ -18,6 +18,7 @@ const FEATURE_IDS = [
   "clob-place-batch-orders",
   "clob-provide-mm-quote",
   "clob-cancel-mm-quote",
+  "bucket-create",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -683,6 +684,43 @@ async function driveClobCancelMmQuote(repo: string): Promise<Record<string, unkn
   };
 }
 
+async function driveBucketCreate(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgCreateBucketRequestSchema } = await import("@morpheum/proto/bucket/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgCreateBucket(CREATE_BUCKET);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgCreateBucketRequestSchema, encoded);
+  assert.equal(msg.bucketId, CREATE_BUCKET.bucketId);
+  assert.equal(msg.bucketType, CREATE_BUCKET.bucketType);
+  assert.equal(msg.collateralAssetIndex, BigInt(CREATE_BUCKET.collateralAssetIndex));
+  assert.equal(msg.initialMargin, CREATE_BUCKET.initialMargin);
+
+  const signDoc = sdk.buildBucketCreateSignDoc(CREATE_BUCKET, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const created = body.messages[0];
+  assert.ok(created);
+  assert.equal(created.typeUrl, "/bucket.v1.MsgCreateBucketRequest");
+  const bodyMatchesEncoded = bytesEqual(created.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    bucketId: msg.bucketId,
+    bucketType: msg.bucketType,
+    collateralAssetIndex: msg.collateralAssetIndex.toString(),
+    initialMargin: msg.initialMargin,
+    typeUrl: created.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -775,6 +813,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "clob-place-batch-orders": driveClobPlaceBatchOrders,
   "clob-provide-mm-quote": driveClobProvideMmQuote,
   "clob-cancel-mm-quote": driveClobCancelMmQuote,
+  "bucket-create": driveBucketCreate,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
