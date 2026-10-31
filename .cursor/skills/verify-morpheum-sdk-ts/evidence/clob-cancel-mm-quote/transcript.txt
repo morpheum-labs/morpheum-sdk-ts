@@ -1,0 +1,3 @@
+PASS clob-cancel-mm-quote
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-cancel-mm-quote/proof.json
+evidence-sha256 4151c5e6b1a7dff1f95006c17bae8173b5935949074ea13c64c4284dd9b451c3
