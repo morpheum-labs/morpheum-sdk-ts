@@ -1,0 +1,20 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "create-market-terms",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive create-market-terms",
+  "runId": "20261031T192900Z-create-market-terms",
+  "repoHead": "6c154dfba600a160a9f10209469b61c0fbfb00a8",
+  "finishedAt": "2026-10-31T19:31:53.243Z",
+  "observations": {
+    "clobTickSize": "1",
+    "clobLotSize": "1",
+    "clobMaxLeverage": "",
+    "signDocByteLength": 233,
+    "offClobTickSize": "",
+    "decimalTickRejected": true,
+    "signDocRefusedDecimalTick": true,
+    "offClobTermsRejected": true
+  },
+  "error": ""
+}
