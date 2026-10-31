@@ -26,7 +26,13 @@ Trigger a liquidation via `encodeMsgTriggerLiquidation` / `buildRiskTriggerLiqui
 
 Update position leverage via `encodeMsgUpdatePositionLeverage` / `buildPositionUpdateLeverageSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-update-leverage`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/position-update-leverage/proof.json` with `"result": "PASS"`.
 
-Re-drive from this checkout: `launch`, then `doctor`, then `drive position-update-leverage`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, `clob-modify-order`, `clob-place-batch-orders`, `clob-provide-mm-quote`, `clob-cancel-mm-quote`, `bucket-create`, `position-close`, and `risk-trigger-liquidation`.
+Transfer between buckets via `encodeMsgTransferBetweenBuckets` / `buildBucketTransferSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-transfer-between-buckets`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-transfer-between-buckets/proof.json` with `"result": "PASS"`.
+
+Transfer to bank via `encodeMsgTransferToBank` / `buildBucketTransferToBankSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-transfer-to-bank`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-transfer-to-bank/proof.json` with `"result": "PASS"`.
+
+Set bucket leverage via `encodeMsgSetLeverage` / `buildBucketSetLeverageSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-set-leverage`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-set-leverage/proof.json` with `"result": "PASS"`.
+
+Re-drive from this checkout: `launch`, then `doctor`, then `drive bucket-set-leverage`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, `clob-modify-order`, `clob-place-batch-orders`, `clob-provide-mm-quote`, `clob-cancel-mm-quote`, `bucket-create`, `position-close`, `risk-trigger-liquidation`, `position-update-leverage`, `bucket-transfer-between-buckets`, and `bucket-transfer-to-bank`.
 
 ```bash
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh launch
@@ -42,6 +48,9 @@ bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-create
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-close
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive risk-trigger-liquidation
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-update-leverage
+bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-transfer-between-buckets
+bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-transfer-to-bank
+bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-set-leverage
 ```
 
 `grpc-query-client` and `ws-stream` are **needs-sentry**. Hold them until a real `MORPHEUM_GRPC_URL` or `MORPHEUM_WS_URL` is set. An unset URL writes `"result": "UNMET"`. `UNMET` is not `PASS`. Do not fake a server.

@@ -1,0 +1,3 @@
+PASS bucket-transfer-to-bank
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-transfer-to-bank/proof.json
+evidence-sha256 b2554813dc223cefdd35cd85cd28ac6077c135412439fc5e0d6881820013e8dc

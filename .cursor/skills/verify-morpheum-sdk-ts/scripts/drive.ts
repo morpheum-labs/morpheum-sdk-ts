@@ -22,6 +22,9 @@ const FEATURE_IDS = [
   "position-close",
   "risk-trigger-liquidation",
   "position-update-leverage",
+  "bucket-transfer-between-buckets",
+  "bucket-transfer-to-bank",
+  "bucket-set-leverage",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -101,6 +104,28 @@ const UPDATE_POSITION_LEVERAGE = {
   newLeverage: "5",
   positionId: "3",
   bucketId: "7",
+};
+
+const TRANSFER_BETWEEN_BUCKETS = {
+  fromAddress: SIGNER,
+  sourceBucketId: "7",
+  targetBucketId: "9",
+  amount: "1000",
+  reason: "rebalance",
+};
+
+const TRANSFER_TO_BANK = {
+  fromAddress: SIGNER,
+  bucketId: "7",
+  assetIndex: 3,
+  amount: "1000",
+};
+
+const SET_BUCKET_LEVERAGE = {
+  fromAddress: SIGNER,
+  bucketId: "7",
+  marketIndex: 1,
+  leverage: 5,
 };
 
 const LIMIT_BUY_TERMS = {
@@ -743,6 +768,135 @@ async function driveBucketCreate(repo: string): Promise<Record<string, unknown>>
   };
 }
 
+async function driveBucketTransferBetweenBuckets(
+  repo: string,
+): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgTransferBetweenBucketsRequestSchema } = await import(
+    "@morpheum/proto/bucket/v1/tx_pb"
+  );
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgTransferBetweenBuckets(TRANSFER_BETWEEN_BUCKETS);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgTransferBetweenBucketsRequestSchema, encoded);
+  assert.equal(msg.sourceBucketId, TRANSFER_BETWEEN_BUCKETS.sourceBucketId);
+  assert.equal(msg.targetBucketId, TRANSFER_BETWEEN_BUCKETS.targetBucketId);
+  assert.equal(msg.amount, TRANSFER_BETWEEN_BUCKETS.amount);
+  assert.equal(msg.reason, TRANSFER_BETWEEN_BUCKETS.reason);
+
+  const signDoc = sdk.buildBucketTransferSignDoc(
+    TRANSFER_BETWEEN_BUCKETS,
+    ...signArgs(sdk),
+  );
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const transferred = body.messages[0];
+  assert.ok(transferred);
+  assert.equal(transferred.typeUrl, "/bucket.v1.MsgTransferBetweenBucketsRequest");
+  const bodyMatchesEncoded = bytesEqual(transferred.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    sourceBucketId: msg.sourceBucketId,
+    targetBucketId: msg.targetBucketId,
+    amount: msg.amount,
+    reason: msg.reason,
+    msgByteLength: encoded.byteLength,
+    typeUrl: transferred.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
+async function driveBucketTransferToBank(
+  repo: string,
+): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgTransferToBankRequestSchema } = await import(
+    "@morpheum/proto/bucket/v1/tx_pb"
+  );
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgTransferToBank(TRANSFER_TO_BANK);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgTransferToBankRequestSchema, encoded);
+  assert.equal(msg.bucketId, TRANSFER_TO_BANK.bucketId);
+  assert.equal(msg.assetIndex, BigInt(TRANSFER_TO_BANK.assetIndex));
+  assert.equal(msg.amount, TRANSFER_TO_BANK.amount);
+
+  const signDoc = sdk.buildBucketTransferToBankSignDoc(
+    TRANSFER_TO_BANK,
+    ...signArgs(sdk),
+  );
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const withdrawn = body.messages[0];
+  assert.ok(withdrawn);
+  assert.equal(withdrawn.typeUrl, "/bucket.v1.MsgTransferToBankRequest");
+  const bodyMatchesEncoded = bytesEqual(withdrawn.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    bucketId: msg.bucketId,
+    assetIndex: msg.assetIndex.toString(),
+    amount: msg.amount,
+    msgByteLength: encoded.byteLength,
+    typeUrl: withdrawn.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
+async function driveBucketSetLeverage(
+  repo: string,
+): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgSetLeverageSchema } = await import("@morpheum/proto/bucket/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgSetLeverage(SET_BUCKET_LEVERAGE);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgSetLeverageSchema, encoded);
+  assert.equal(msg.bucketId, SET_BUCKET_LEVERAGE.bucketId);
+  assert.equal(msg.marketIndex, BigInt(SET_BUCKET_LEVERAGE.marketIndex));
+  assert.equal(msg.leverage, SET_BUCKET_LEVERAGE.leverage);
+
+  const signDoc = sdk.buildBucketSetLeverageSignDoc(
+    SET_BUCKET_LEVERAGE,
+    ...signArgs(sdk),
+  );
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const levered = body.messages[0];
+  assert.ok(levered);
+  assert.equal(levered.typeUrl, "/bucket.v1.MsgSetLeverage");
+  const bodyMatchesEncoded = bytesEqual(levered.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    bucketId: msg.bucketId,
+    marketIndex: msg.marketIndex.toString(),
+    leverage: msg.leverage,
+    msgByteLength: encoded.byteLength,
+    typeUrl: levered.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function drivePositionClose(repo: string): Promise<Record<string, unknown>> {
   const sdk = await loadBarrel(repo);
   const { fromBinary } = await import("@bufbuild/protobuf");
@@ -956,6 +1110,9 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "position-close": drivePositionClose,
   "risk-trigger-liquidation": driveRiskTriggerLiquidation,
   "position-update-leverage": drivePositionUpdateLeverage,
+  "bucket-transfer-between-buckets": driveBucketTransferBetweenBuckets,
+  "bucket-transfer-to-bank": driveBucketTransferToBank,
+  "bucket-set-leverage": driveBucketSetLeverage,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };

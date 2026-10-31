@@ -1,0 +1,19 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "bucket-transfer-to-bank",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-transfer-to-bank",
+  "runId": "bucket-transfer-to-bank-ad1e",
+  "repoHead": "b77975a8257ea8401826fdca7f68cf39ae30723f",
+  "finishedAt": "2026-10-31T22:15:04.944Z",
+  "observations": {
+    "bucketId": "7",
+    "assetIndex": "3",
+    "amount": "1000",
+    "msgByteLength": 11,
+    "typeUrl": "/bucket.v1.MsgTransferToBankRequest",
+    "signDocByteLength": 181,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}
