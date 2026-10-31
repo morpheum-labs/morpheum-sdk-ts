@@ -32,9 +32,9 @@ Transfer to bank via `encodeMsgTransferToBank` / `buildBucketTransferToBankSignD
 
 Set bucket leverage via `encodeMsgSetLeverage` / `buildBucketSetLeverageSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-set-leverage`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-set-leverage/proof.json` with `"result": "PASS"`.
 
-Activate a market via `encodeMsgActivateMarket` / `buildMarketActivateSignDoc`. Run `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive market-activate`. Evidence follows once that drive passes.
+Activate a market via `encodeMsgActivateMarket` / `buildMarketActivateSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive market-activate`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/market-activate/proof.json` with `"result": "PASS"`.
 
-Suspend a market via `encodeMsgSuspendMarket` / `buildMarketSuspendSignDoc`. Run `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive market-suspend`. Evidence follows once that drive passes.
+Suspend a market via `encodeMsgSuspendMarket` / `buildMarketSuspendSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive market-suspend`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/market-suspend/proof.json` with `"result": "PASS"`.
 
 Re-drive from this checkout: `launch`, then `doctor`, then `drive market-suspend`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, `clob-modify-order`, `clob-place-batch-orders`, `clob-provide-mm-quote`, `clob-cancel-mm-quote`, `bucket-create`, `position-close`, `risk-trigger-liquidation`, `position-update-leverage`, `bucket-transfer-between-buckets`, `bucket-transfer-to-bank`, `bucket-set-leverage`, and `market-activate`.
 

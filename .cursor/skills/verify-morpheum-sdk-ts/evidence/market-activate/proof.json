@@ -1,0 +1,19 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "market-activate",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive market-activate",
+  "runId": "market-activate-2635",
+  "repoHead": "0f9f00a3f1d0e7b6c851336f0e9e37688e52570b",
+  "finishedAt": "2026-10-31T22:32:27.204Z",
+  "observations": {
+    "marketIndex": "1",
+    "activator": "0x1111111111111111111111111111111111111111",
+    "timestamp": null,
+    "msgByteLength": 46,
+    "typeUrl": "/market.v1.MsgActivateMarketRequest",
+    "signDocByteLength": 216,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

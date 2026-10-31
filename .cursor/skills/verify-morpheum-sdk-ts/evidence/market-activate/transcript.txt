@@ -1,0 +1,3 @@
+PASS market-activate
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/market-activate/proof.json
+evidence-sha256 19c7bd8838df32555aea689ddaed556016e3ebf81077273ba39ebd5e7ae3baa1
