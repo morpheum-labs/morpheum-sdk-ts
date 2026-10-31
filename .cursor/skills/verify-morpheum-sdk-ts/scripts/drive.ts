@@ -17,6 +17,7 @@ const FEATURE_IDS = [
   "clob-modify-order",
   "clob-place-batch-orders",
   "clob-provide-mm-quote",
+  "clob-cancel-mm-quote",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -117,6 +118,11 @@ function provideMmQuote(sdk: Barrel) {
     durationSeconds: 60,
   };
 }
+
+const CANCEL_MM_QUOTE = {
+  quoteId: "quote-1",
+  provider: SIGNER,
+};
 
 function placeBatch(sdk: Barrel) {
   return {
@@ -644,6 +650,39 @@ async function driveClobProvideMmQuote(repo: string): Promise<Record<string, unk
   };
 }
 
+async function driveClobCancelMmQuote(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgCancelMarketMakerQuoteRequestSchema } = await import("@morpheum/proto/clob/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgCancelMarketMakerQuote(CANCEL_MM_QUOTE);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgCancelMarketMakerQuoteRequestSchema, encoded);
+  assert.equal(msg.quoteId, CANCEL_MM_QUOTE.quoteId);
+  assert.equal(msg.provider, CANCEL_MM_QUOTE.provider);
+
+  const signDoc = sdk.buildClobCancelMarketMakerQuoteSignDoc(CANCEL_MM_QUOTE, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const cancelled = body.messages[0];
+  assert.ok(cancelled);
+  assert.equal(cancelled.typeUrl, "/clob.v1.MsgCancelMarketMakerQuoteRequest");
+  const bodyMatchesEncoded = bytesEqual(cancelled.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    quoteId: msg.quoteId,
+    provider: msg.provider,
+    typeUrl: cancelled.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -735,6 +774,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "clob-modify-order": driveClobModifyOrder,
   "clob-place-batch-orders": driveClobPlaceBatchOrders,
   "clob-provide-mm-quote": driveClobProvideMmQuote,
+  "clob-cancel-mm-quote": driveClobCancelMmQuote,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
