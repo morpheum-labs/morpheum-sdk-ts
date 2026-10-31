@@ -1,0 +1,22 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "sign-doc-gas-limit",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive sign-doc-gas-limit",
+  "runId": "sign-doc-gas-limit-3df5",
+  "repoHead": "0f04c6073a9ea28625c673575ede127182142dcb",
+  "finishedAt": "2026-10-31T19:22:51.562Z",
+  "observations": {
+    "declared": {
+      "gasLimit": "750000",
+      "shipsTheSignedAuthInfo": true
+    },
+    "omitted": {
+      "gasLimit": "25000",
+      "shipsTheSignedAuthInfo": true
+    },
+    "invalidRejected": true,
+    "gasLimitTestExit": 0
+  },
+  "error": ""
+}
