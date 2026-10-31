@@ -20,6 +20,7 @@ const FEATURE_IDS = [
   "clob-cancel-mm-quote",
   "bucket-create",
   "position-close",
+  "risk-trigger-liquidation",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -86,6 +87,10 @@ const CLOSE_POSITION = {
   fromAddress: SIGNER,
   marketIndex: 0,
   exitPrice: "100",
+};
+
+const TRIGGER_LIQUIDATION = {
+  marketIndex: 0,
 };
 
 const LIMIT_BUY_TERMS = {
@@ -765,6 +770,41 @@ async function drivePositionClose(repo: string): Promise<Record<string, unknown>
   };
 }
 
+async function driveRiskTriggerLiquidation(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgTriggerLiquidationSchema } = await import("@morpheum/proto/risk/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgTriggerLiquidation(TRIGGER_LIQUIDATION);
+  const msg = fromBinary(MsgTriggerLiquidationSchema, encoded);
+  assert.equal(msg.marketIndex, BigInt(TRIGGER_LIQUIDATION.marketIndex));
+  assert.equal(msg.bucketId, 0n);
+
+  const signDoc = sdk.buildRiskTriggerLiquidationSignDoc(
+    TRIGGER_LIQUIDATION,
+    ...signArgs(sdk),
+  );
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const triggered = body.messages[0];
+  assert.ok(triggered);
+  assert.equal(triggered.typeUrl, "/risk.v1.MsgTriggerLiquidation");
+  const bodyMatchesEncoded = bytesEqual(triggered.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    marketIndex: msg.marketIndex.toString(),
+    bucketId: msg.bucketId.toString(),
+    typeUrl: triggered.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -859,6 +899,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "clob-cancel-mm-quote": driveClobCancelMmQuote,
   "bucket-create": driveBucketCreate,
   "position-close": drivePositionClose,
+  "risk-trigger-liquidation": driveRiskTriggerLiquidation,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };

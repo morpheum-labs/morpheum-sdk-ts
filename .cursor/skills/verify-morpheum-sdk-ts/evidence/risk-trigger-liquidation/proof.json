@@ -1,0 +1,17 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "risk-trigger-liquidation",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive risk-trigger-liquidation",
+  "runId": "risk-trigger-liquidation-e822",
+  "repoHead": "802dd2de903f0dcca61bde6ef77458e2ba1c4e9a",
+  "finishedAt": "2026-10-31T21:19:51.749Z",
+  "observations": {
+    "marketIndex": "0",
+    "bucketId": "0",
+    "typeUrl": "/risk.v1.MsgTriggerLiquidation",
+    "signDocByteLength": 163,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

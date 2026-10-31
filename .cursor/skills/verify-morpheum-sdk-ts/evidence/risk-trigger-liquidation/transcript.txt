@@ -1,0 +1,3 @@
+PASS risk-trigger-liquidation
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/risk-trigger-liquidation/proof.json
+evidence-sha256 a3761aab6314100d448245606fc3082c189f14d835a8fe6f65a9621188cc59a0
