@@ -777,7 +777,6 @@ async function driveRiskTriggerLiquidation(repo: string): Promise<Record<string,
   const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
 
   const encoded = sdk.encodeMsgTriggerLiquidation(TRIGGER_LIQUIDATION);
-  assert.ok(encoded.byteLength > 0);
   const msg = fromBinary(MsgTriggerLiquidationSchema, encoded);
   assert.equal(msg.marketIndex, BigInt(TRIGGER_LIQUIDATION.marketIndex));
   assert.equal(msg.bucketId, 0n);

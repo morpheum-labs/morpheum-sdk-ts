@@ -38,4 +38,5 @@ bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive risk-trigger-
 - `bucketId` is an optional string. Omitting it encodes `"0"`, which requests a market-wide scan rather than a single bucket.
 - `marketIndex` and `bucketId` are encoded as `BigInt`. Pass `marketIndex` as a number. Pass `bucketId` as a decimal string when you set it.
 - The message does not carry a mark price. The chain derives the mark price and logical timestamp from committed state. Do not invent a mark-price field the library does not set.
+- This drive uses market index `0` and the default bucket id `"0"`. Both are proto3 `uint64` zeros, so the encoded message can be empty. Decode those bytes and require a non-empty SignDoc. Do not require a non-empty message payload.
 - `encodeMsgTriggerLiquidation` does not check that a position exists. Do not invent a rejection the library does not perform.
