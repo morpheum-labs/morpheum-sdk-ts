@@ -1,0 +1,17 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "clob-cancel-mm-quote",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-mm-quote",
+  "runId": "clob-cancel-mm-quote-9c7e",
+  "repoHead": "c621fea9fe5f9b50fa3cefdca7a79edec46b5d9b",
+  "finishedAt": "2026-10-31T20:50:29.654Z",
+  "observations": {
+    "quoteId": "quote-1",
+    "provider": "0x1111111111111111111111111111111111111111",
+    "typeUrl": "/clob.v1.MsgCancelMarketMakerQuoteRequest",
+    "signDocByteLength": 229,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}
