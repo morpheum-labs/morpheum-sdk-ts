@@ -40,9 +40,10 @@ The surface is a Node ESM library. There is no page, command palette, or long-li
 - [Place a batch of CLOB orders](./clob-place-batch-orders.md) — **offline / proven**. Covers `encodeMsgPlaceBatchOrders` and `buildClobPlaceBatchOrdersSignDoc`. Evidence: `../evidence/clob-place-batch-orders/proof.json` with `result` `PASS`.
 - [Provide a market-maker quote](./clob-provide-mm-quote.md) — **offline / proven**. Covers `encodeMsgProvideMarketMakerQuote` and `buildClobProvideMarketMakerQuoteSignDoc`. Evidence: `../evidence/clob-provide-mm-quote/proof.json` with `result` `PASS`.
 - [Cancel a market-maker quote](./clob-cancel-mm-quote.md) — **offline / proven**. Covers `encodeMsgCancelMarketMakerQuote` and `buildClobCancelMarketMakerQuoteSignDoc`. Evidence: `../evidence/clob-cancel-mm-quote/proof.json` with `result` `PASS`.
+- [Create a bucket](./bucket-create.md) — **offline / proven**. Covers `encodeMsgCreateBucket` and `buildBucketCreateSignDoc`. `build-signed-tx` still owns Tx assembly. Evidence: `../evidence/bucket-create/proof.json` with `result` `PASS`.
 - [Query over gRPC](./grpc-query-client.md) — **needs-sentry**. Covers `MormcoreGrpcClient` against a real node. Requires `MORPHEUM_GRPC_URL`. `UNMET` is not `PASS`. Do not fake a server.
 - [Subscribe over WebSocket](./ws-stream.md) — **needs-sentry**. Covers `MorpheumWsClient` against a real stream. Requires `MORPHEUM_WS_URL`. `UNMET` is not `PASS`. Do not fake a server.
 
 ## Unmapped remaining
 
-Dedicated bucket-create (beyond `build-signed-tx`'s incidental use), position, and risk are not mapped.
+Position (`encodeMsgClosePosition`, `encodeMsgUpdatePositionLeverage`) and risk (`encodeMsgTriggerLiquidation`) are not mapped. Other bucket messages remain unmapped: transfer between buckets (`encodeMsgTransferBetweenBuckets` / `buildBucketTransferSignDoc`), transfer to bank (`encodeMsgTransferToBank` / `buildBucketTransferToBankSignDoc`), and set leverage (`encodeMsgSetLeverage` / `buildBucketSetLeverageSignDoc`).
