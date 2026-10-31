@@ -1,0 +1,20 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "clob-place-order",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-order",
+  "runId": "clob-place-order-4b13",
+  "repoHead": "22c57fb4fbd1ae6a95cd5058156caf2f0fd72c24",
+  "finishedAt": "2026-10-31T19:45:13.380Z",
+  "observations": {
+    "price": "100",
+    "quantity": "1",
+    "side": 1,
+    "orderType": 1,
+    "marketIndex": "0",
+    "typeUrl": "/clob.v1.MsgPlaceOrderRequest",
+    "signDocByteLength": 222,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}
