@@ -1,0 +1,19 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "bucket-create",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-create",
+  "runId": "bucket-create-4901",
+  "repoHead": "0cc6a38cb483257f4bcb43e6a112b7edade3e109",
+  "finishedAt": "2026-10-31T20:58:46.163Z",
+  "observations": {
+    "bucketId": "bucket-1",
+    "bucketType": 1,
+    "collateralAssetIndex": "0",
+    "initialMargin": "100",
+    "typeUrl": "/bucket.v1.MsgCreateBucketRequest",
+    "signDocByteLength": 185,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

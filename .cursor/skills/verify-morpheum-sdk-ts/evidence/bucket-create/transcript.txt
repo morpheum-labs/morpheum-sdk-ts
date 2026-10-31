@@ -1,0 +1,3 @@
+PASS bucket-create
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-create/proof.json
+evidence-sha256 faa7b13d2e43352103a9f261651373ad1acad06542c5e9b231a949676d6e2ce9
