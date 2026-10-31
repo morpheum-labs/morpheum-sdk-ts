@@ -14,7 +14,9 @@ After cancel, amend via `encodeMsgModifyOrder` / `buildClobModifyOrderSignDoc`. 
 
 After amend, batch place via `encodeMsgPlaceBatchOrders` / `buildClobPlaceBatchOrdersSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-batch-orders`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-place-batch-orders/proof.json` with `"result": "PASS"`.
 
-Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-place-batch-orders`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, and `clob-modify-order`.
+After batch place, a market-maker quote via `encodeMsgProvideMarketMakerQuote` / `buildClobProvideMarketMakerQuoteSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-provide-mm-quote`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-provide-mm-quote/proof.json` with `"result": "PASS"`.
+
+Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-provide-mm-quote`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, `clob-modify-order`, and `clob-place-batch-orders`.
 
 ```bash
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh launch
@@ -24,6 +26,7 @@ bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-or
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-order
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-modify-order
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-batch-orders
+bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-provide-mm-quote
 ```
 
 `grpc-query-client` and `ws-stream` are **needs-sentry**. Hold them until a real `MORPHEUM_GRPC_URL` or `MORPHEUM_WS_URL` is set. An unset URL writes `"result": "UNMET"`. `UNMET` is not `PASS`. Do not fake a server.

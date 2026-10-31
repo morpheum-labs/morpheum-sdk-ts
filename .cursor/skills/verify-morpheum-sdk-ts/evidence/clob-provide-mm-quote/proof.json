@@ -1,0 +1,22 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "clob-provide-mm-quote",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-provide-mm-quote",
+  "runId": "clob-provide-mm-quote-47e4",
+  "repoHead": "30bdecade19537e9885a2da72ae6df8035c062e5",
+  "finishedAt": "2026-10-31T20:32:10.652Z",
+  "observations": {
+    "provider": "0x1111111111111111111111111111111111111111",
+    "poolId": "pool-1",
+    "marketIndex": "0",
+    "side": 1,
+    "price": "100",
+    "amount": "1",
+    "durationSeconds": "60",
+    "typeUrl": "/clob.v1.MsgProvideMarketMakerQuoteRequest",
+    "signDocByteLength": 243,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}
