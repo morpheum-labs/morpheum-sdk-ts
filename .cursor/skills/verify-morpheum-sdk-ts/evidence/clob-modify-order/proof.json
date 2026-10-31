@@ -1,0 +1,20 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "clob-modify-order",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-modify-order",
+  "runId": "clob-modify-order-333d",
+  "repoHead": "64169fd76fe6009906c05bed613c22035dee2208",
+  "finishedAt": "2026-10-31T20:07:17.484Z",
+  "observations": {
+    "orderId": "order-1",
+    "address": "0x1111111111111111111111111111111111111111",
+    "symbol": "",
+    "newPrice": "101",
+    "newQuantity": "2",
+    "typeUrl": "/clob.v1.MsgModifyOrderRequest",
+    "signDocByteLength": 226,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}

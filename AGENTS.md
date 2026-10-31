@@ -10,7 +10,9 @@ After create-market, the next HFT step is place order via `encodeMsgPlaceOrder` 
 
 After place order, cancel via `encodeMsgCancelOrder` / `buildClobCancelOrderSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-order`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-cancel-order/proof.json` with `"result": "PASS"`.
 
-Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-cancel-order`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, and `clob-place-order`.
+After cancel, amend via `encodeMsgModifyOrder` / `buildClobModifyOrderSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-modify-order`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-modify-order/proof.json` with `"result": "PASS"`.
+
+Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-modify-order`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, and `clob-cancel-order`.
 
 ```bash
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh launch
@@ -18,6 +20,7 @@ bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh doctor
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive create-market-terms
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-order
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-cancel-order
+bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-modify-order
 ```
 
 `grpc-query-client` and `ws-stream` are **needs-sentry**. Hold them until a real `MORPHEUM_GRPC_URL` or `MORPHEUM_WS_URL` is set. An unset URL writes `"result": "UNMET"`. `UNMET` is not `PASS`. Do not fake a server.

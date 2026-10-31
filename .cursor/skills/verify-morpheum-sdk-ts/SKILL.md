@@ -107,7 +107,7 @@ The proof has to show the call and the resulting state. For `build-signed-tx`, t
 
 Stdout of a passing drive includes a `PASS <feature>` line and `evidence-sha256` of `proof.json`.
 
-`features/README.md` is the scan. `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, and `clob-cancel-order` are offline / proven. `grpc-query-client` and `ws-stream` are needs-sentry.
+`features/README.md` is the scan. `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, and `clob-modify-order` are offline / proven. `grpc-query-client` and `ws-stream` are needs-sentry.
 
 ## Cleanup
 
