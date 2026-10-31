@@ -21,6 +21,7 @@ const FEATURE_IDS = [
   "bucket-create",
   "position-close",
   "risk-trigger-liquidation",
+  "position-update-leverage",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -91,6 +92,14 @@ const CLOSE_POSITION = {
 
 const TRIGGER_LIQUIDATION = {
   marketIndex: 1,
+  bucketId: "7",
+};
+
+const UPDATE_POSITION_LEVERAGE = {
+  fromAddress: SIGNER,
+  marketIndex: 1,
+  newLeverage: "5",
+  positionId: "3",
   bucketId: "7",
 };
 
@@ -808,6 +817,49 @@ async function driveRiskTriggerLiquidation(repo: string): Promise<Record<string,
   };
 }
 
+async function drivePositionUpdateLeverage(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgUpdatePositionLeverageSchema } = await import("@morpheum/proto/position/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgUpdatePositionLeverage(UPDATE_POSITION_LEVERAGE);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgUpdatePositionLeverageSchema, encoded);
+  assert.equal(msg.address, UPDATE_POSITION_LEVERAGE.fromAddress);
+  assert.equal(msg.positionId, "3");
+  assert.equal(msg.bucketId, "7");
+  assert.equal(msg.marketIndex, 1n);
+  assert.equal(msg.newLeverage, "5");
+
+  const signDoc = sdk.buildPositionUpdateLeverageSignDoc(
+    UPDATE_POSITION_LEVERAGE,
+    ...signArgs(sdk),
+  );
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const updated = body.messages[0];
+  assert.ok(updated);
+  assert.equal(updated.typeUrl, "/position.v1.Msg/UpdatePositionLeverage");
+  const bodyMatchesEncoded = bytesEqual(updated.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    address: msg.address,
+    positionId: msg.positionId,
+    bucketId: msg.bucketId,
+    marketIndex: msg.marketIndex.toString(),
+    newLeverage: msg.newLeverage,
+    msgByteLength: encoded.byteLength,
+    typeUrl: updated.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -903,6 +955,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "bucket-create": driveBucketCreate,
   "position-close": drivePositionClose,
   "risk-trigger-liquidation": driveRiskTriggerLiquidation,
+  "position-update-leverage": drivePositionUpdateLeverage,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };

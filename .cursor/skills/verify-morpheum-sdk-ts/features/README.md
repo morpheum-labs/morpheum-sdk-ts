@@ -43,9 +43,10 @@ The surface is a Node ESM library. There is no page, command palette, or long-li
 - [Create a bucket](./bucket-create.md) — **offline / proven**. Covers `encodeMsgCreateBucket` and `buildBucketCreateSignDoc`. `build-signed-tx` still owns Tx assembly. Evidence: `../evidence/bucket-create/proof.json` with `result` `PASS`.
 - [Close a position](./position-close.md) — **offline / proven**. Covers `encodeMsgClosePosition` and `buildPositionCloseSignDoc`. Evidence: `../evidence/position-close/proof.json` with `result` `PASS`.
 - [Trigger a liquidation](./risk-trigger-liquidation.md) — **offline / proven**. Covers `encodeMsgTriggerLiquidation` and `buildRiskTriggerLiquidationSignDoc`. Evidence: `../evidence/risk-trigger-liquidation/proof.json` with `result` `PASS`.
+- [Update position leverage](./position-update-leverage.md) — **offline / proven**. Covers `encodeMsgUpdatePositionLeverage` and `buildPositionUpdateLeverageSignDoc`. Evidence: `../evidence/position-update-leverage/proof.json` with `result` `PASS`.
 - [Query over gRPC](./grpc-query-client.md) — **needs-sentry**. Covers `MormcoreGrpcClient` against a real node. Requires `MORPHEUM_GRPC_URL`. `UNMET` is not `PASS`. Do not fake a server.
 - [Subscribe over WebSocket](./ws-stream.md) — **needs-sentry**. Covers `MorpheumWsClient` against a real stream. Requires `MORPHEUM_WS_URL`. `UNMET` is not `PASS`. Do not fake a server.
 
 ## Unmapped remaining
 
-Still unmapped: `position-update-leverage` (`encodeMsgUpdatePositionLeverage` / `buildPositionUpdateLeverageSignDoc`), and the other bucket messages — transfer (`encodeMsgTransferBetweenBuckets` / `buildBucketTransferSignDoc`), transfer to bank (`encodeMsgTransferToBank` / `buildBucketTransferToBankSignDoc`), and set leverage (`encodeMsgSetLeverage` / `buildBucketSetLeverageSignDoc`).
+Still unmapped: the other bucket messages, transfer (`encodeMsgTransferBetweenBuckets` / `buildBucketTransferSignDoc`), transfer to bank (`encodeMsgTransferToBank` / `buildBucketTransferToBankSignDoc`), and set leverage (`encodeMsgSetLeverage` / `buildBucketSetLeverageSignDoc`).

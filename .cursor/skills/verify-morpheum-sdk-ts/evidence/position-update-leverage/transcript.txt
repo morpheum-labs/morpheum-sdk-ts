@@ -1,0 +1,3 @@
+PASS position-update-leverage
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/position-update-leverage/proof.json
+evidence-sha256 1ac1c6dd9f4d18134810ce807cb527fa471dfdf4fe3cc82f2f266abe26d98bc9
