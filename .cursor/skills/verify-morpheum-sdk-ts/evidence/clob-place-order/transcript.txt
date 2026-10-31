@@ -1,0 +1,3 @@
+PASS clob-place-order
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-place-order/proof.json
+evidence-sha256 3493f0b6a409d863cbe7c9d0150b4da3555051d8e69f71d3186c02cab1bc695b

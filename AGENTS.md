@@ -6,9 +6,9 @@ Market creation checks terms only in `encodeMsgCreateMarket`. `buildMarketCreate
 
 That path is proven offline. Run `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive create-market-terms`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/create-market-terms/proof.json` with `"result": "PASS"`.
 
-After create-market, the next HFT step is place order via `encodeMsgPlaceOrder` / `buildClobPlaceOrderSignDoc`, proven by `drive clob-place-order` once evidence lands.
+After create-market, the next HFT step is place order via `encodeMsgPlaceOrder` / `buildClobPlaceOrderSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive clob-place-order`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-place-order/proof.json` with `"result": "PASS"`.
 
-Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-place-order` once that evidence is on disk. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, and `create-market-terms`.
+Re-drive from this checkout: `launch`, then `doctor`, then `drive clob-place-order`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, and `create-market-terms`.
 
 ```bash
 bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh launch
