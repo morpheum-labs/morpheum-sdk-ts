@@ -98,6 +98,17 @@ clone_missing() {
   fi
 }
 
+ensure_proto_deps() {
+  local proto_ts="$PROTO/ts"
+  if [ ! -f "$proto_ts/package-lock.json" ]; then
+    echo "morpheum-proto/ts/package-lock.json is missing under $PROTO" >&2
+    echo "Generated files import @bufbuild/protobuf from that package. npm ci installs it beside the sources so Node and tsc can resolve it." >&2
+    exit 1
+  fi
+  echo "npm ci proto"
+  (cd "$proto_ts" && npm ci --ignore-scripts)
+}
+
 ensure_pkg_node() {
   if [ -f "$PKG_NODE/package.json" ]; then
     return 0
@@ -134,10 +145,13 @@ cmd_launch() {
     exit 1
   fi
   ensure_pkg_node
+  ensure_proto_deps
   echo "npm install"
   (cd "$REPO" && npm install)
   echo "importing src/index.ts"
-  (cd "$REPO" && ./node_modules/.bin/tsx --eval 'await import("./src/index.ts")')
+  # tsx --eval compiles as CommonJS unless --input-type=module. Top-level await
+  # then fails before the barrel loads.
+  (cd "$REPO" && ./node_modules/.bin/tsx --input-type=module --eval 'await import("./src/index.ts")')
   echo "verify-morpheum-sdk-ts ready"
 }
 
@@ -201,7 +215,8 @@ cmd_doctor() {
     bad "node_modules/@morpheum/signing-node is missing. Run launch."
   fi
   if [ -f "$REPO/node_modules/@morpheum/signing-node/package.json" ]; then
-    if find "$REPO/node_modules/@morpheum/signing-node" -name '*_bg.wasm' -print -quit | grep -q .; then
+    # -H follows the file: symlink. Default find (-P) stays on the link and misses the wasm.
+    if find -H "$REPO/node_modules/@morpheum/signing-node" -name '*_bg.wasm' -print -quit | grep -q .; then
       note "signing wasm present"
     else
       bad "signing package has no *_bg.wasm"
