@@ -20,7 +20,7 @@ After a market-maker quote, cancel that quote via `encodeMsgCancelMarketMakerQuo
 
 Bucket create via `encodeMsgCreateBucket` / `buildBucketCreateSignDoc` is a dedicated offline path. `build-signed-tx` still owns the Tx round-trip that uses a bucket-creation fixture. This path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive bucket-create`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/bucket-create/proof.json` with `"result": "PASS"`.
 
-Close a position via `encodeMsgClosePosition` / `buildPositionCloseSignDoc`. Run `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-close`. Evidence follows once that drive passes.
+Close a position via `encodeMsgClosePosition` / `buildPositionCloseSignDoc`. That path is proven offline by `bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-close`. Surviving evidence is `.cursor/skills/verify-morpheum-sdk-ts/evidence/position-close/proof.json` with `"result": "PASS"`.
 
 Re-drive from this checkout: `launch`, then `doctor`, then `drive position-close`. The other offline drives are `build-signed-tx`, `sign-doc-gas-limit`, `create-market-terms`, `clob-place-order`, `clob-cancel-order`, `clob-modify-order`, `clob-place-batch-orders`, `clob-provide-mm-quote`, `clob-cancel-mm-quote`, and `bucket-create`.
 

@@ -1,0 +1,3 @@
+PASS position-close
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/position-close/proof.json
+evidence-sha256 058c967129c4e4868395dbe5835f12eea8a5aa0edf298d3ff5aa6dd8f0e64ea8

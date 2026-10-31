@@ -1,0 +1,19 @@
+{
+  "skill": "verify-morpheum-sdk-ts",
+  "feature": "position-close",
+  "result": "PASS",
+  "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive position-close",
+  "runId": "position-close-d0c2",
+  "repoHead": "e9014f22626644685011326967626349a6fcb673",
+  "finishedAt": "2026-10-31T21:10:11.826Z",
+  "observations": {
+    "address": "0x1111111111111111111111111111111111111111",
+    "marketIndex": "0",
+    "exitPrice": "100",
+    "bucketId": "0",
+    "typeUrl": "/position.v1.Msg/ClosePosition",
+    "signDocByteLength": 211,
+    "bodyMatchesEncoded": true
+  },
+  "error": ""
+}
