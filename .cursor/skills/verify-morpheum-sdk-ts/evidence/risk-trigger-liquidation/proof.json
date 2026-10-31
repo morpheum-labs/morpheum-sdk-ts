@@ -3,14 +3,15 @@
   "feature": "risk-trigger-liquidation",
   "result": "PASS",
   "command": "bash .cursor/skills/verify-morpheum-sdk-ts/scripts/verify.sh drive risk-trigger-liquidation",
-  "runId": "risk-trigger-liquidation-e822",
-  "repoHead": "802dd2de903f0dcca61bde6ef77458e2ba1c4e9a",
-  "finishedAt": "2026-10-31T21:19:51.749Z",
+  "runId": "risk-liq-fields-fe07",
+  "repoHead": "c971e175074055c13a14ded68e59e74a90906a63",
+  "finishedAt": "2026-10-31T21:35:42.412Z",
   "observations": {
-    "marketIndex": "0",
-    "bucketId": "0",
+    "marketIndex": "1",
+    "bucketId": "7",
+    "msgByteLength": 4,
     "typeUrl": "/risk.v1.MsgTriggerLiquidation",
-    "signDocByteLength": 163,
+    "signDocByteLength": 169,
     "bodyMatchesEncoded": true
   },
   "error": ""
