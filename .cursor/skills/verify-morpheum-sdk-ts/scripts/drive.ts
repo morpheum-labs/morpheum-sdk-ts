@@ -14,6 +14,7 @@ const FEATURE_IDS = [
   "create-market-terms",
   "clob-place-order",
   "clob-cancel-order",
+  "clob-modify-order",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -94,6 +95,13 @@ function limitBuy(sdk: Barrel) {
 const CANCEL_ORDER = {
   fromAddress: SIGNER,
   orderId: "order-1",
+};
+
+const MODIFY_ORDER = {
+  fromAddress: SIGNER,
+  orderId: "order-1",
+  newPrice: "101",
+  newQuantity: "2",
 };
 
 function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
@@ -438,6 +446,45 @@ async function driveClobCancelOrder(repo: string): Promise<Record<string, unknow
   };
 }
 
+async function driveClobModifyOrder(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgModifyOrderRequestSchema } = await import("@morpheum/proto/clob/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgModifyOrder(MODIFY_ORDER);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgModifyOrderRequestSchema, encoded);
+  assert.equal(msg.orderId, MODIFY_ORDER.orderId);
+  assert.equal(msg.address, MODIFY_ORDER.fromAddress);
+  assert.equal(msg.symbol, "");
+  assert.equal(msg.newPrice, MODIFY_ORDER.newPrice);
+  assert.equal(msg.newQuantity, MODIFY_ORDER.newQuantity);
+
+  const signDoc = sdk.buildClobModifyOrderSignDoc(MODIFY_ORDER, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const modified = body.messages[0];
+  assert.ok(modified);
+  assert.equal(modified.typeUrl, "/clob.v1.MsgModifyOrderRequest");
+  const bodyMatchesEncoded = bytesEqual(modified.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    orderId: msg.orderId,
+    address: msg.address,
+    symbol: msg.symbol,
+    newPrice: msg.newPrice,
+    newQuantity: msg.newQuantity,
+    typeUrl: modified.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -526,6 +573,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "create-market-terms": driveCreateMarket,
   "clob-place-order": driveClobPlaceOrder,
   "clob-cancel-order": driveClobCancelOrder,
+  "clob-modify-order": driveClobModifyOrder,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
