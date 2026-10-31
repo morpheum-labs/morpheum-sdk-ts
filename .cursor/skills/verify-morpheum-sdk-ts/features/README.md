@@ -35,9 +35,10 @@ The surface is a Node ESM library. There is no page, command palette, or long-li
 - [Declare a gas limit](./sign-doc-gas-limit.md) — **offline / proven**. Covers `buildSignDoc` and every `build*SignDoc` export. Evidence: `../evidence/sign-doc-gas-limit/proof.json` with `result` `PASS`.
 - [Create a market](./create-market-terms.md) — **offline / proven**. Covers `encodeMsgCreateMarket` and `buildMarketCreateSignDoc`. Evidence: `../evidence/create-market-terms/proof.json` with `result` `PASS`.
 - [Place a CLOB order](./clob-place-order.md) — **offline / proven**. Covers `encodeMsgPlaceOrder` and `buildClobPlaceOrderSignDoc`. Evidence: `../evidence/clob-place-order/proof.json` with `result` `PASS`.
+- [Cancel a CLOB order](./clob-cancel-order.md) — **offline / proven**. Covers `encodeMsgCancelOrder` and `buildClobCancelOrderSignDoc`. Evidence: `../evidence/clob-cancel-order/proof.json` with `result` `PASS`.
 - [Query over gRPC](./grpc-query-client.md) — **needs-sentry**. Covers `MormcoreGrpcClient` against a real node. Requires `MORPHEUM_GRPC_URL`. `UNMET` is not `PASS`. Do not fake a server.
 - [Subscribe over WebSocket](./ws-stream.md) — **needs-sentry**. Covers `MorpheumWsClient` against a real stream. Requires `MORPHEUM_WS_URL`. `UNMET` is not `PASS`. Do not fake a server.
 
 ## Unmapped remaining
 
-Bucket, position, risk, and the other CLOB messages (batch, modify, cancel, market-maker quote) are not mapped.
+Modify (amend), batch place, and market-maker quote are not mapped. Bucket, position, and risk are not mapped.

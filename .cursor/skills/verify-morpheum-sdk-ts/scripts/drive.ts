@@ -13,6 +13,7 @@ const FEATURE_IDS = [
   "sign-doc-gas-limit",
   "create-market-terms",
   "clob-place-order",
+  "clob-cancel-order",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -89,6 +90,11 @@ function limitBuy(sdk: Barrel) {
     orderType: sdk.OrderType.LIMIT,
   };
 }
+
+const CANCEL_ORDER = {
+  fromAddress: SIGNER,
+  orderId: "order-1",
+};
 
 function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
   return Buffer.compare(left, right) === 0;
@@ -397,6 +403,41 @@ async function driveClobPlaceOrder(repo: string): Promise<Record<string, unknown
   };
 }
 
+async function driveClobCancelOrder(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgCancelOrderRequestSchema } = await import("@morpheum/proto/clob/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgCancelOrder(CANCEL_ORDER);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgCancelOrderRequestSchema, encoded);
+  assert.equal(msg.orderId, CANCEL_ORDER.orderId);
+  assert.equal(msg.address, CANCEL_ORDER.fromAddress);
+  assert.equal(msg.symbol, "");
+
+  const signDoc = sdk.buildClobCancelOrderSignDoc(CANCEL_ORDER, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const cancelled = body.messages[0];
+  assert.ok(cancelled);
+  assert.equal(cancelled.typeUrl, "/clob.v1.MsgCancelOrderRequest");
+  const bodyMatchesEncoded = bytesEqual(cancelled.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    orderId: msg.orderId,
+    address: msg.address,
+    symbol: msg.symbol,
+    typeUrl: cancelled.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -484,6 +525,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "sign-doc-gas-limit": driveGasLimit,
   "create-market-terms": driveCreateMarket,
   "clob-place-order": driveClobPlaceOrder,
+  "clob-cancel-order": driveClobCancelOrder,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
