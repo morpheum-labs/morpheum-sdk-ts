@@ -130,16 +130,10 @@ describe("position-close parity", () => {
     assert.equal(hex(encodeMsgClosePosition(params)), fixture.msgHex);
   });
 
-  it(
-    "SignDoc bytes match the Rust SDK",
-    {
-      todo: "TxBuilder and buildPositionCloseSignDoc disagree on the public-key type URL and chain type",
-    },
-    () => {
-      const actual = built().signDocBytes;
-      const actualHex = hex(actual);
-      if (actualHex === fixture.signDocHex) return;
-      assert.fail(mismatch(actual, fixture.signDocHex));
-    },
-  );
+  it("SignDoc bytes match the Rust SDK", () => {
+    const actual = built().signDocBytes;
+    const actualHex = hex(actual);
+    if (actualHex === fixture.signDocHex) return;
+    assert.fail(mismatch(actual, fixture.signDocHex));
+  });
 });
