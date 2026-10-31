@@ -1,0 +1,16 @@
+[package]
+name = "parity-position-close"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "parity-position-close"
+path = "position-close.rs"
+
+[dependencies]
+async-trait = "0.1"
+morpheum-sdk-core = { path = "/tmp/morpheum-sdk/crates/core", features = ["std"] }
+morpheum-sdk-position = { path = "/tmp/morpheum-sdk/crates/position", features = ["std"] }
+prost = { version = "0.14", default-features = false }
+tokio = { version = "1", features = ["rt"] }
