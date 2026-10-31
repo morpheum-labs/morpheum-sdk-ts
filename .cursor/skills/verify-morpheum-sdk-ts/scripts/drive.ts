@@ -25,6 +25,8 @@ const FEATURE_IDS = [
   "bucket-transfer-between-buckets",
   "bucket-transfer-to-bank",
   "bucket-set-leverage",
+  "market-activate",
+  "market-suspend",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -126,6 +128,17 @@ const SET_BUCKET_LEVERAGE = {
   bucketId: "7",
   marketIndex: 1,
   leverage: 5,
+};
+
+const ACTIVATE_MARKET = {
+  activator: SIGNER,
+  marketIndex: 1,
+};
+
+const SUSPEND_MARKET = {
+  suspender: SIGNER,
+  marketIndex: 1,
+  reason: "halt",
 };
 
 const LIMIT_BUY_TERMS = {
@@ -1014,6 +1027,80 @@ async function drivePositionUpdateLeverage(repo: string): Promise<Record<string,
   };
 }
 
+async function driveMarketActivate(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgActivateMarketRequestSchema } = await import("@morpheum/proto/market/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgActivateMarket(ACTIVATE_MARKET);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgActivateMarketRequestSchema, encoded);
+  assert.equal(msg.marketIndex, BigInt(ACTIVATE_MARKET.marketIndex));
+  assert.equal(msg.activator, ACTIVATE_MARKET.activator);
+  assert.equal(msg.timestamp, undefined);
+
+  const signDoc = sdk.buildMarketActivateSignDoc(ACTIVATE_MARKET, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const activated = body.messages[0];
+  assert.ok(activated);
+  assert.equal(activated.typeUrl, "/market.v1.MsgActivateMarketRequest");
+  const bodyMatchesEncoded = bytesEqual(activated.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    marketIndex: msg.marketIndex.toString(),
+    activator: msg.activator,
+    timestamp: msg.timestamp ?? null,
+    msgByteLength: encoded.byteLength,
+    typeUrl: activated.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
+async function driveMarketSuspend(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgSuspendMarketRequestSchema } = await import("@morpheum/proto/market/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgSuspendMarket(SUSPEND_MARKET);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgSuspendMarketRequestSchema, encoded);
+  assert.equal(msg.marketIndex, BigInt(SUSPEND_MARKET.marketIndex));
+  assert.equal(msg.reason, SUSPEND_MARKET.reason);
+  assert.equal(msg.suspender, SUSPEND_MARKET.suspender);
+  assert.equal(msg.timestamp, undefined);
+
+  const signDoc = sdk.buildMarketSuspendSignDoc(SUSPEND_MARKET, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const suspended = body.messages[0];
+  assert.ok(suspended);
+  assert.equal(suspended.typeUrl, "/market.v1.MsgSuspendMarketRequest");
+  const bodyMatchesEncoded = bytesEqual(suspended.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    marketIndex: msg.marketIndex.toString(),
+    reason: msg.reason,
+    suspender: msg.suspender,
+    timestamp: msg.timestamp ?? null,
+    msgByteLength: encoded.byteLength,
+    typeUrl: suspended.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -1113,6 +1200,8 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "bucket-transfer-between-buckets": driveBucketTransferBetweenBuckets,
   "bucket-transfer-to-bank": driveBucketTransferToBank,
   "bucket-set-leverage": driveBucketSetLeverage,
+  "market-activate": driveMarketActivate,
+  "market-suspend": driveMarketSuspend,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };

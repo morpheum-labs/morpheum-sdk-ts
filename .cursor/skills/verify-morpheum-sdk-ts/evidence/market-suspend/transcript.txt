@@ -1,0 +1,3 @@
+PASS market-suspend
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/market-suspend/proof.json
+evidence-sha256 5a9d527e434a2e27b98966e649facbf964c686a6e788cb80ea59951cb919529d

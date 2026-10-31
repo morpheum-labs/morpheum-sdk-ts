@@ -47,5 +47,7 @@ The surface is a Node ESM library. There is no page, command palette, or long-li
 - [Transfer between buckets](./bucket-transfer-between-buckets.md) — **offline / proven**. Covers `encodeMsgTransferBetweenBuckets` and `buildBucketTransferSignDoc`. Evidence: `../evidence/bucket-transfer-between-buckets/proof.json` with `result` `PASS`.
 - [Transfer to bank](./bucket-transfer-to-bank.md) — **offline / proven**. Covers `encodeMsgTransferToBank` and `buildBucketTransferToBankSignDoc`. Evidence: `../evidence/bucket-transfer-to-bank/proof.json` with `result` `PASS`.
 - [Set bucket leverage](./bucket-set-leverage.md) — **offline / proven**. Covers `encodeMsgSetLeverage` and `buildBucketSetLeverageSignDoc`. Evidence: `../evidence/bucket-set-leverage/proof.json` with `result` `PASS`.
+- [Activate a market](./market-activate.md) — **offline / proven**. Covers `encodeMsgActivateMarket` and `buildMarketActivateSignDoc`. Evidence: `../evidence/market-activate/proof.json` with `result` `PASS`.
+- [Suspend a market](./market-suspend.md) — **offline / proven**. Covers `encodeMsgSuspendMarket` and `buildMarketSuspendSignDoc`. Evidence: `../evidence/market-suspend/proof.json` with `result` `PASS`.
 - [Query over gRPC](./grpc-query-client.md) — **needs-sentry**. Covers `MormcoreGrpcClient` against a real node. Requires `MORPHEUM_GRPC_URL`. `UNMET` is not `PASS`. Do not fake a server.
 - [Subscribe over WebSocket](./ws-stream.md) — **needs-sentry**. Covers `MorpheumWsClient` against a real stream. Requires `MORPHEUM_WS_URL`. `UNMET` is not `PASS`. Do not fake a server.
