@@ -90,7 +90,8 @@ const CLOSE_POSITION = {
 };
 
 const TRIGGER_LIQUIDATION = {
-  marketIndex: 0,
+  marketIndex: 1,
+  bucketId: "7",
 };
 
 const LIMIT_BUY_TERMS = {
@@ -777,9 +778,10 @@ async function driveRiskTriggerLiquidation(repo: string): Promise<Record<string,
   const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
 
   const encoded = sdk.encodeMsgTriggerLiquidation(TRIGGER_LIQUIDATION);
+  assert.ok(encoded.byteLength > 0);
   const msg = fromBinary(MsgTriggerLiquidationSchema, encoded);
-  assert.equal(msg.marketIndex, BigInt(TRIGGER_LIQUIDATION.marketIndex));
-  assert.equal(msg.bucketId, 0n);
+  assert.equal(msg.marketIndex, 1n);
+  assert.equal(msg.bucketId, 7n);
 
   const signDoc = sdk.buildRiskTriggerLiquidationSignDoc(
     TRIGGER_LIQUIDATION,
@@ -799,6 +801,7 @@ async function driveRiskTriggerLiquidation(repo: string): Promise<Record<string,
   return {
     marketIndex: msg.marketIndex.toString(),
     bucketId: msg.bucketId.toString(),
+    msgByteLength: encoded.byteLength,
     typeUrl: triggered.typeUrl,
     signDocByteLength: signDoc.signDocBytes.byteLength,
     bodyMatchesEncoded,
