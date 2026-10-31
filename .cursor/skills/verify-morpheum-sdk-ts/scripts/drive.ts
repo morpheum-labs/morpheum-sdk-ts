@@ -19,6 +19,7 @@ const FEATURE_IDS = [
   "clob-provide-mm-quote",
   "clob-cancel-mm-quote",
   "bucket-create",
+  "position-close",
   "grpc-query-client",
   "ws-stream",
 ] as const;
@@ -79,6 +80,12 @@ const CREATE_BUCKET = {
   bucketType: 1,
   collateralAssetIndex: 0,
   initialMargin: "100",
+};
+
+const CLOSE_POSITION = {
+  fromAddress: SIGNER,
+  marketIndex: 0,
+  exitPrice: "100",
 };
 
 const LIMIT_BUY_TERMS = {
@@ -721,6 +728,43 @@ async function driveBucketCreate(repo: string): Promise<Record<string, unknown>>
   };
 }
 
+async function drivePositionClose(repo: string): Promise<Record<string, unknown>> {
+  const sdk = await loadBarrel(repo);
+  const { fromBinary } = await import("@bufbuild/protobuf");
+  const { MsgClosePositionSchema } = await import("@morpheum/proto/position/v1/tx_pb");
+  const { SignDocSchema, TxBodySchema } = await import("@morpheum/proto/tx/v1/tx_pb");
+
+  const encoded = sdk.encodeMsgClosePosition(CLOSE_POSITION);
+  assert.ok(encoded.byteLength > 0);
+  const msg = fromBinary(MsgClosePositionSchema, encoded);
+  assert.equal(msg.address, CLOSE_POSITION.fromAddress);
+  assert.equal(msg.marketIndex, BigInt(CLOSE_POSITION.marketIndex));
+  assert.equal(msg.exitPrice, BigInt(CLOSE_POSITION.exitPrice));
+  assert.equal(msg.bucketId, 0n);
+
+  const signDoc = sdk.buildPositionCloseSignDoc(CLOSE_POSITION, ...signArgs(sdk));
+  assert.ok(signDoc.signDocBytes.byteLength > 0);
+  const preimage = fromBinary(SignDocSchema, signDoc.signDocBytes);
+  assert.ok(bytesEqual(preimage.bodyBytes, signDoc.bodyBytes));
+  const body = fromBinary(TxBodySchema, preimage.bodyBytes);
+  assert.equal(body.messages.length, 1);
+  const closed = body.messages[0];
+  assert.ok(closed);
+  assert.equal(closed.typeUrl, "/position.v1.Msg/ClosePosition");
+  const bodyMatchesEncoded = bytesEqual(closed.value, encoded);
+  assert.equal(bodyMatchesEncoded, true);
+
+  return {
+    address: msg.address,
+    marketIndex: msg.marketIndex.toString(),
+    exitPrice: msg.exitPrice.toString(),
+    bucketId: msg.bucketId.toString(),
+    typeUrl: closed.typeUrl,
+    signDocByteLength: signDoc.signDocBytes.byteLength,
+    bodyMatchesEncoded,
+  };
+}
+
 async function withTimeout<T>(ms: number, work: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -814,6 +858,7 @@ const DRIVES: Record<FeatureId, (repo: string) => Promise<Record<string, unknown
   "clob-provide-mm-quote": driveClobProvideMmQuote,
   "clob-cancel-mm-quote": driveClobCancelMmQuote,
   "bucket-create": driveBucketCreate,
+  "position-close": drivePositionClose,
   "grpc-query-client": driveGrpc,
   "ws-stream": driveWs,
 };
