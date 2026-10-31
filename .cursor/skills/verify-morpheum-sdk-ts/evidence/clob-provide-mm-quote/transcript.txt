@@ -1,0 +1,3 @@
+PASS clob-provide-mm-quote
+evidence /agent/repos/morpheum-sdk-ts/.cursor/skills/verify-morpheum-sdk-ts/evidence/clob-provide-mm-quote/proof.json
+evidence-sha256 3d41762dcc16432bccb352934394e4f49467ddf7a8a356764609a7bbad673543
