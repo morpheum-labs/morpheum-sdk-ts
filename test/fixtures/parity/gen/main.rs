@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use morpheum_sdk_bucket::{BucketType, CreateBucketRequest};
+use morpheum_sdk_clob::{OrderType, PlaceOrderRequest, Side};
 use morpheum_sdk_core::prelude::TxBuilder;
 use morpheum_sdk_core::proto::google::protobuf::Any as ProtoAny;
 use morpheum_sdk_core::signing::proto::tx::v1::{Nonce, SignDoc, SignMode};
@@ -72,6 +73,10 @@ fn cases() -> Vec<Case> {
             "bucket-create",
             CreateBucketRequest::new(BucketType::Isolated, 0, "100"),
             note = "CreateBucketRequest::new always writes an empty bucket_id, so the TS side uses bucketId \"\". The verify drive's \"bucket-1\" is a different message."
+        ),
+        case!(
+            "clob-place-order",
+            PlaceOrderRequest::new(SIGNER, 0, "100", "1", Side::Buy, OrderType::Limit)
         ),
     ]
 }

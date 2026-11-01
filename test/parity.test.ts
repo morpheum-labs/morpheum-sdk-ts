@@ -5,6 +5,8 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { create, fromBinary } from "@bufbuild/protobuf";
 import { BucketType } from "@morpheum/proto/bucket/v1/bucket_pb";
+import { OrderType } from "@morpheum/proto/clob/v1/clob_pb";
+import { Side } from "@morpheum/proto/primitives/v1/primitives_pb";
 import {
   AuthInfoSchema,
   NonceSchema,
@@ -16,11 +18,13 @@ import {
   ChainType,
   SignMode,
   buildBucketCreateSignDoc,
+  buildClobPlaceOrderSignDoc,
   buildPositionCloseSignDoc,
   buildPositionUpdateLeverageSignDoc,
   buildRiskTriggerLiquidationSignDoc,
   encodeMsgClosePosition,
   encodeMsgCreateBucket,
+  encodeMsgPlaceOrder,
   encodeMsgTriggerLiquidation,
   encodeMsgUpdatePositionLeverage,
   type ChainIdentity,
@@ -222,6 +226,20 @@ const CASES: readonly Case[] = [
     }),
     encode: encodeMsgCreateBucket,
     build: buildBucketCreateSignDoc,
+  }),
+  parityCase({
+    name: "clob-place-order",
+    verdict: "match",
+    params: (signer) => ({
+      fromAddress: signer,
+      marketIndex: 0,
+      price: "100",
+      quantity: "1",
+      side: Side.BUY,
+      orderType: OrderType.LIMIT,
+    }),
+    encode: encodeMsgPlaceOrder,
+    build: buildClobPlaceOrderSignDoc,
   }),
 ];
 
