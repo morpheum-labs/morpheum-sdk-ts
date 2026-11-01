@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use morpheum_sdk_bucket::{BucketType, CreateBucketRequest};
-use morpheum_sdk_clob::{OrderType, PlaceOrderRequest, Side};
+use morpheum_sdk_clob::{CancelOrderRequest, OrderType, PlaceOrderRequest, Side};
 use morpheum_sdk_core::prelude::TxBuilder;
 use morpheum_sdk_core::proto::google::protobuf::Any as ProtoAny;
 use morpheum_sdk_core::signing::proto::tx::v1::{Nonce, SignDoc, SignMode};
@@ -77,6 +77,10 @@ fn cases() -> Vec<Case> {
         case!(
             "clob-place-order",
             PlaceOrderRequest::new(SIGNER, 0, "100", "1", Side::Buy, OrderType::Limit)
+        ),
+        case!(
+            "clob-cancel-order",
+            CancelOrderRequest::new(SIGNER, "order-1")
         ),
     ]
 }

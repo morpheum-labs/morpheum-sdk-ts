@@ -18,10 +18,12 @@ import {
   ChainType,
   SignMode,
   buildBucketCreateSignDoc,
+  buildClobCancelOrderSignDoc,
   buildClobPlaceOrderSignDoc,
   buildPositionCloseSignDoc,
   buildPositionUpdateLeverageSignDoc,
   buildRiskTriggerLiquidationSignDoc,
+  encodeMsgCancelOrder,
   encodeMsgClosePosition,
   encodeMsgCreateBucket,
   encodeMsgPlaceOrder,
@@ -240,6 +242,13 @@ const CASES: readonly Case[] = [
     }),
     encode: encodeMsgPlaceOrder,
     build: buildClobPlaceOrderSignDoc,
+  }),
+  parityCase({
+    name: "clob-cancel-order",
+    verdict: "match",
+    params: (signer) => ({ fromAddress: signer, orderId: "order-1" }),
+    encode: encodeMsgCancelOrder,
+    build: buildClobCancelOrderSignDoc,
   }),
 ];
 
