@@ -7,7 +7,7 @@ use morpheum_sdk_core::signing::proto::tx::v1::{Nonce, SignDoc, SignMode};
 use morpheum_sdk_core::signing::signer::Signer;
 use morpheum_sdk_core::signing::types::{PublicKey, Signature, WalletType};
 use morpheum_sdk_core::signing::SigningError;
-use morpheum_sdk_position::ClosePositionRequest;
+use morpheum_sdk_position::{ClosePositionRequest, UpdatePositionLeverageRequest};
 use prost::Message;
 use serde::Serialize;
 
@@ -54,10 +54,15 @@ macro_rules! case {
 }
 
 fn cases() -> Vec<Case> {
-    vec![case!(
-        "position-close",
-        ClosePositionRequest::new(SIGNER, 0, 100)
-    )]
+    vec![
+        case!("position-close", ClosePositionRequest::new(SIGNER, 0, 100)),
+        case!(
+            "position-update-leverage",
+            UpdatePositionLeverageRequest::new(SIGNER, 1, "5")
+                .with_position_id("3")
+                .with_bucket_id("7")
+        ),
+    ]
 }
 
 struct SignDocRecorder {

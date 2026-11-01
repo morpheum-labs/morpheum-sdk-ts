@@ -15,7 +15,9 @@ import {
   ChainType,
   SignMode,
   buildPositionCloseSignDoc,
+  buildPositionUpdateLeverageSignDoc,
   encodeMsgClosePosition,
+  encodeMsgUpdatePositionLeverage,
   type ChainIdentity,
   type SignDocOptions,
   type SignDocResult,
@@ -182,6 +184,19 @@ const CASES: readonly Case[] = [
     }),
     encode: encodeMsgClosePosition,
     build: buildPositionCloseSignDoc,
+  }),
+  parityCase({
+    name: "position-update-leverage",
+    verdict: "match",
+    params: (signer) => ({
+      fromAddress: signer,
+      marketIndex: 1,
+      newLeverage: "5",
+      positionId: "3",
+      bucketId: "7",
+    }),
+    encode: encodeMsgUpdatePositionLeverage,
+    build: buildPositionUpdateLeverageSignDoc,
   }),
 ];
 
