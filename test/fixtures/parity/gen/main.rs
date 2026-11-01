@@ -1,7 +1,9 @@
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-use morpheum_sdk_bucket::{BucketType, CreateBucketRequest};
+use morpheum_sdk_bucket::{
+    BucketType, CreateBucketRequest, TransferBetweenBucketsRequest, TransferToBankRequest,
+};
 use morpheum_sdk_clob::{CancelOrderRequest, OrderType, PlaceOrderRequest, Side};
 use morpheum_sdk_core::prelude::TxBuilder;
 use morpheum_sdk_core::proto::google::protobuf::Any as ProtoAny;
@@ -68,7 +70,36 @@ fn cases() -> Vec<Case> {
             "clob-cancel-order",
             CancelOrderRequest::new(SIGNER, "order-1")
         ),
+        case!(
+            "bucket-transfer-between-buckets",
+            TransferBetweenBucketsRequest::new("7", "9", "1000").reason("rebalance")
+        ),
+        case!(
+            "bucket-transfer-to-bank",
+            TransferToBankRequest::new("7", 3, "1000")
+        ),
+        case!(
+            "bucket-set-leverage",
+            morpheum_proto::bucket::v1::MsgSetLeverage {
+                bucket_id: "7".into(),
+                market_index: 1,
+                leverage: 5,
+            }
+        ),
     ]
+}
+
+trait AsProtoAny {
+    fn to_any(&self) -> ProtoAny;
+}
+
+impl AsProtoAny for morpheum_proto::bucket::v1::MsgSetLeverage {
+    fn to_any(&self) -> ProtoAny {
+        ProtoAny {
+            type_url: "/bucket.v1.MsgSetLeverage".into(),
+            value: self.encode_to_vec(),
+        }
+    }
 }
 
 struct SignDocRecorder {
