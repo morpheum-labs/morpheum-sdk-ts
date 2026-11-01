@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { create, fromBinary } from "@bufbuild/protobuf";
+import { BucketType } from "@morpheum/proto/bucket/v1/bucket_pb";
 import {
   AuthInfoSchema,
   NonceSchema,
@@ -14,10 +15,12 @@ import {
 import {
   ChainType,
   SignMode,
+  buildBucketCreateSignDoc,
   buildPositionCloseSignDoc,
   buildPositionUpdateLeverageSignDoc,
   buildRiskTriggerLiquidationSignDoc,
   encodeMsgClosePosition,
+  encodeMsgCreateBucket,
   encodeMsgTriggerLiquidation,
   encodeMsgUpdatePositionLeverage,
   type ChainIdentity,
@@ -206,6 +209,19 @@ const CASES: readonly Case[] = [
     params: () => ({ marketIndex: 1, bucketId: "7" }),
     encode: encodeMsgTriggerLiquidation,
     build: buildRiskTriggerLiquidationSignDoc,
+  }),
+  parityCase({
+    name: "bucket-create",
+    verdict: "match",
+    params: (signer) => ({
+      fromAddress: signer,
+      bucketId: "",
+      bucketType: BucketType.ISOLATED,
+      collateralAssetIndex: 0,
+      initialMargin: "100",
+    }),
+    encode: encodeMsgCreateBucket,
+    build: buildBucketCreateSignDoc,
   }),
 ];
 
