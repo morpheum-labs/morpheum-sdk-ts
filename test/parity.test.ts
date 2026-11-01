@@ -219,13 +219,16 @@ const CASES: readonly Case[] = [
   parityCase({
     name: "bucket-create",
     verdict: "match",
-    params: (signer) => ({
-      fromAddress: signer,
-      bucketId: "",
-      bucketType: BucketType.ISOLATED,
-      collateralAssetIndex: 0,
-      initialMargin: "100",
-    }),
+    params: (signer) => {
+      const chainMintedBucketId = "";
+      return {
+        fromAddress: signer,
+        bucketId: chainMintedBucketId,
+        bucketType: BucketType.ISOLATED,
+        collateralAssetIndex: 0,
+        initialMargin: "100",
+      };
+    },
     encode: encodeMsgCreateBucket,
     build: buildBucketCreateSignDoc,
   }),
@@ -407,8 +410,6 @@ describe("SignDoc parity with the Rust SDK", () => {
 
   for (const [index, c] of CASES.entries()) {
     describe(c.name, () => {
-      // A finding is it.todo so Node prints the assertion and still exits 0.
-      // A match is it, so a later byte change fails npm test.
       const check = c.verdict === "match" ? it : it.todo;
       check("message bytes match the Rust SDK", () => {
         const want = expected[index];

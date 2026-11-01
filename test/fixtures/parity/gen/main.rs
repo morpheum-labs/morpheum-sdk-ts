@@ -24,33 +24,20 @@ const CHAIN_ID: &str = "morm-dev-1";
 const GENESIS: [u8; 32] = [7; 32];
 const NONCE: (u64, u32, u32) = (0, 1_234_567, 0);
 
-// Fixture names are the TypeScript enum keys for WalletType::Evm and SignMode::Eip191Personal.
 const CHAIN_TYPE: &str = "ETHEREUM";
 const SIGN_MODE: &str = "EIP191_PERSONAL";
 
 struct Case {
     name: &'static str,
     rust_call: &'static str,
-    note: Option<&'static str>,
     any: ProtoAny,
 }
 
-/// `rust_call` is `stringify!` of the request expression, so the fixture
-/// records the call that produced the bytes.
 macro_rules! case {
     ($name:literal, $req:expr) => {
         Case {
             name: $name,
             rust_call: stringify!($req),
-            note: None,
-            any: $req.to_any(),
-        }
-    };
-    ($name:literal, $req:expr, note = $note:literal) => {
-        Case {
-            name: $name,
-            rust_call: stringify!($req),
-            note: Some($note),
             any: $req.to_any(),
         }
     };
@@ -71,8 +58,7 @@ fn cases() -> Vec<Case> {
         ),
         case!(
             "bucket-create",
-            CreateBucketRequest::new(BucketType::Isolated, 0, "100"),
-            note = "CreateBucketRequest::new always writes an empty bucket_id, so the TS side uses bucketId \"\". The verify drive's \"bucket-1\" is a different message."
+            CreateBucketRequest::new(BucketType::Isolated, 0, "100")
         ),
         case!(
             "clob-place-order",
@@ -199,8 +185,6 @@ struct NonceOut {
 struct CaseOut {
     name: &'static str,
     rust_call: &'static str,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    note: Option<&'static str>,
     msg_hex: String,
     sign_doc_hex: String,
 }
@@ -229,7 +213,6 @@ async fn emit(case: Case) -> CaseOut {
     CaseOut {
         name: case.name,
         rust_call: case.rust_call,
-        note: case.note,
         msg_hex,
         sign_doc_hex,
     }
