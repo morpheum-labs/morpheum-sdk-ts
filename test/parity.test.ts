@@ -16,7 +16,9 @@ import {
   SignMode,
   buildPositionCloseSignDoc,
   buildPositionUpdateLeverageSignDoc,
+  buildRiskTriggerLiquidationSignDoc,
   encodeMsgClosePosition,
+  encodeMsgTriggerLiquidation,
   encodeMsgUpdatePositionLeverage,
   type ChainIdentity,
   type SignDocOptions,
@@ -197,6 +199,13 @@ const CASES: readonly Case[] = [
     }),
     encode: encodeMsgUpdatePositionLeverage,
     build: buildPositionUpdateLeverageSignDoc,
+  }),
+  parityCase({
+    name: "risk-trigger-liquidation",
+    verdict: "match",
+    params: () => ({ marketIndex: 1, bucketId: "7" }),
+    encode: encodeMsgTriggerLiquidation,
+    build: buildRiskTriggerLiquidationSignDoc,
   }),
 ];
 

@@ -12,6 +12,7 @@ path = "main.rs"
 async-trait = "0.1"
 morpheum-sdk-core = { path = "/tmp/morpheum-sdk/crates/core", features = ["std"] }
 morpheum-sdk-position = { path = "/tmp/morpheum-sdk/crates/position", features = ["std"] }
+morpheum-sdk-risk = { path = "/tmp/morpheum-sdk/crates/risk", features = ["std"] }
 prost = { version = "0.14", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

@@ -8,6 +8,7 @@ use morpheum_sdk_core::signing::signer::Signer;
 use morpheum_sdk_core::signing::types::{PublicKey, Signature, WalletType};
 use morpheum_sdk_core::signing::SigningError;
 use morpheum_sdk_position::{ClosePositionRequest, UpdatePositionLeverageRequest};
+use morpheum_sdk_risk::TriggerLiquidationRequest;
 use prost::Message;
 use serde::Serialize;
 
@@ -61,6 +62,10 @@ fn cases() -> Vec<Case> {
             UpdatePositionLeverageRequest::new(SIGNER, 1, "5")
                 .with_position_id("3")
                 .with_bucket_id("7")
+        ),
+        case!(
+            "risk-trigger-liquidation",
+            TriggerLiquidationRequest::new(1, 7)
         ),
     ]
 }
