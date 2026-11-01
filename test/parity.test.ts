@@ -21,16 +21,24 @@ import {
   buildBucketSetLeverageSignDoc,
   buildBucketTransferSignDoc,
   buildBucketTransferToBankSignDoc,
+  buildClobCancelMarketMakerQuoteSignDoc,
   buildClobCancelOrderSignDoc,
   buildClobPlaceOrderSignDoc,
+  buildClobProvideMarketMakerQuoteSignDoc,
+  buildMarketActivateSignDoc,
+  buildMarketSuspendSignDoc,
   buildPositionCloseSignDoc,
   buildPositionUpdateLeverageSignDoc,
   buildRiskTriggerLiquidationSignDoc,
+  encodeMsgActivateMarket,
+  encodeMsgCancelMarketMakerQuote,
   encodeMsgCancelOrder,
   encodeMsgClosePosition,
   encodeMsgCreateBucket,
   encodeMsgPlaceOrder,
+  encodeMsgProvideMarketMakerQuote,
   encodeMsgSetLeverage,
+  encodeMsgSuspendMarket,
   encodeMsgTransferBetweenBuckets,
   encodeMsgTransferToBank,
   encodeMsgTriggerLiquidation,
@@ -41,6 +49,8 @@ import {
 } from "../src/index";
 
 const RUST_SDK_SHA = "e64030e184aa68e20dd67caf8908ab1e2f635348";
+
+const accountIdDisplayOf0x11 = "11".repeat(32);
 
 type Envelope = {
   signer: string;
@@ -295,6 +305,51 @@ const CASES: readonly Case[] = [
     }),
     encode: encodeMsgSetLeverage,
     build: buildBucketSetLeverageSignDoc,
+  }),
+  parityCase({
+    name: "market-activate",
+    verdict: "match",
+    params: () => ({
+      activator: accountIdDisplayOf0x11,
+      marketIndex: 1,
+    }),
+    encode: encodeMsgActivateMarket,
+    build: buildMarketActivateSignDoc,
+  }),
+  parityCase({
+    name: "market-suspend",
+    verdict: "match",
+    params: () => ({
+      suspender: accountIdDisplayOf0x11,
+      marketIndex: 1,
+      reason: "halt",
+    }),
+    encode: encodeMsgSuspendMarket,
+    build: buildMarketSuspendSignDoc,
+  }),
+  parityCase({
+    name: "clob-provide-mm-quote",
+    verdict: "match",
+    params: (signer) => ({
+      provider: signer,
+      poolId: "pool-1",
+      marketIndex: 0,
+      side: Side.BUY,
+      price: "100",
+      amount: "1",
+    }),
+    encode: encodeMsgProvideMarketMakerQuote,
+    build: buildClobProvideMarketMakerQuoteSignDoc,
+  }),
+  parityCase({
+    name: "clob-cancel-mm-quote",
+    verdict: "match",
+    params: (signer) => ({
+      quoteId: "quote-1",
+      provider: signer,
+    }),
+    encode: encodeMsgCancelMarketMakerQuote,
+    build: buildClobCancelMarketMakerQuoteSignDoc,
   }),
 ];
 

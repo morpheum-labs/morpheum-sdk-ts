@@ -15,6 +15,7 @@ morpheum-sdk-position = { path = "/tmp/morpheum-sdk/crates/position", features =
 morpheum-sdk-risk = { path = "/tmp/morpheum-sdk/crates/risk", features = ["std"] }
 morpheum-sdk-bucket = { path = "/tmp/morpheum-sdk/crates/bucket", features = ["std"] }
 morpheum-sdk-clob = { path = "/tmp/morpheum-sdk/crates/clob", features = ["std"] }
+morpheum-sdk-market = { path = "/tmp/morpheum-sdk/crates/market", features = ["std"] }
 morpheum-proto = { path = "/tmp/morpheum-proto", default-features = false, features = ["std"] }
 prost = { version = "0.14", default-features = false }
 serde = { version = "1", features = ["derive"] }

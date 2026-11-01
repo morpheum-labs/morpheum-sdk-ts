@@ -4,7 +4,11 @@ use async_trait::async_trait;
 use morpheum_sdk_bucket::{
     BucketType, CreateBucketRequest, TransferBetweenBucketsRequest, TransferToBankRequest,
 };
-use morpheum_sdk_clob::{CancelOrderRequest, OrderType, PlaceOrderRequest, Side};
+use morpheum_sdk_clob::{
+    CancelMarketMakerQuoteRequest, CancelOrderRequest, OrderType, PlaceOrderRequest,
+    ProvideMarketMakerQuoteRequest, Side,
+};
+use morpheum_sdk_market::{AccountId, ActivateMarketRequest, SuspendMarketRequest};
 use morpheum_sdk_core::prelude::TxBuilder;
 use morpheum_sdk_core::proto::google::protobuf::Any as ProtoAny;
 use morpheum_sdk_core::signing::proto::tx::v1::{Nonce, SignDoc, SignMode};
@@ -85,6 +89,22 @@ fn cases() -> Vec<Case> {
                 market_index: 1,
                 leverage: 5,
             }
+        ),
+        case!(
+            "market-activate",
+            ActivateMarketRequest::new(1, AccountId::new([0x11; 32]))
+        ),
+        case!(
+            "market-suspend",
+            SuspendMarketRequest::new(1, "halt".into(), AccountId::new([0x11; 32]))
+        ),
+        case!(
+            "clob-provide-mm-quote",
+            ProvideMarketMakerQuoteRequest::new(SIGNER, "pool-1", 0, Side::Buy, "100", "1")
+        ),
+        case!(
+            "clob-cancel-mm-quote",
+            CancelMarketMakerQuoteRequest::new("quote-1", SIGNER)
         ),
     ]
 }
